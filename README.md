@@ -73,7 +73,7 @@ even possible), so it's outside the scope of this project.
 - If the program gets interrupted, check the log file for the last successful attempt
   ```bash
   # Check log file
-  cat log.txt
+  cat log.csv
   ```
 
 ## License

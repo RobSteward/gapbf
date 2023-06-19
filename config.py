@@ -52,9 +52,9 @@ graph = {
 GRID_SIZE = 5
 path_min_length = 5
 path_max_length = 21
-excluded_nodes = [6, 9, 16, 21]
 path_prefix = [20, 15, 10, 5, 0]
 path_suffix = []
+excluded_nodes = [6, 9, 16, 21]
 attempt_counter = 1
 attempt_delay = 10100
 

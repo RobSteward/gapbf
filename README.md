@@ -66,7 +66,7 @@ even possible), so it's outside the scope of this project.
 - Start brute forcing
   ```bash
   # Run tool
- python main.py
+  python main.py
   ```
 
 - Wait for a successful attempt, this may take a long while

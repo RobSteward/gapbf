@@ -4,7 +4,6 @@
 A tool for brute forcing an Android security pattern through TWRP recovery based on a graph-traversal model (credit to https://github.com/psarna).
 
 During a holiday trip my phone did a dive too deep and the screen broke. By the time the screen was fixed I had forgotten what security pattern I had set. But I remembered some parts of my pattern and used Tim's code (timvisee/apbf) and Piotrs help to build a python version of apbf.
-
 I succeeded to crack my 5x5 pattern in about XX.XX hours (at the time of writing it's still running on a small Linux Mint machine...will update if/when successful).
 
 ## Requirements
@@ -24,7 +23,7 @@ large.
 It is highly recommended to constrain the search space as much as possible if
 you partially know the pattern to greatly improve the brute force duration.
 
-In the [`config.py`](./config.py) file you can tweak a few constants for:
+In the [`config.json`](./config.json) file you can tweak a few constants for:
 - Grid size
 - Minimum pattern length
 - Maximum pattern length
@@ -47,10 +46,10 @@ even possible), so it's outside the scope of this project.
   cd gapbf
   ```
 
-- Tweak properties for brute force attempt in [`config.py`](./config.py):
+- Tweak properties in [`config.json`](./config.json):
   ```bash
-  # Edit constants
-  code config.rs
+  # Edit configuration
+  code config.json
   ```
 
   Constrain it as much as possible to reduce pattern search space, which greatly
@@ -77,11 +76,12 @@ even possible), so it's outside the scope of this project.
   ```
 
 ## To Do
-* Replace grid with predefined substistued grids (3,4,5,6)
-* Remove substitue function
 * Test DummyHandler
 * Build CountPathHandler
 * In ADBHandler read attemptedPaths csv to set and check current path against attemptedPaths and skip if found
+* ~~Replace grid with predefined substistued grids (3,4,5,6)~~
+* ~~Remove substitue function~~
+
 ## License
 This project is released under the GNU GPL-3.0 license.
 Check out the [LICENSE](LICENSE) file for more information.

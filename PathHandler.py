@@ -3,12 +3,20 @@ import subprocess
 import sys
 import time
 import csv
+import json
 from datetime import datetime
-from config import STDOUT_NORMAL, STDOUT_SUCCESS, STDOUT_ERROR, secret_path
-from render import render_path
-from render import render_path_steps
-from substitue import substitute
-from config import attempt_delay
+from RenderHandler import render_path
+from RenderHandler import render_path_steps
+
+# Load config file
+with open('config.json') as config_file:
+    data = json.load(config_file)
+
+# Assigning variables
+stdout_normal = data["config"]["outputstrings"]["stdout_normal"]
+stdout_success = data["config"]["outputstrings"]["stdout_success"]
+stdout_error = data["config"]["outputstrings"]["stdout_error"]
+attempt_delay = data["config"]["attempt_delay"]
 
 class PathHandler(ABC):
     
@@ -25,18 +33,16 @@ class ADBHandler(PathHandler):
         print(f"\nTrying path: {path} with length {len(path)}")
         render_path(path)
         render_path_steps(path) 
-        substituted_path = substitute(path)
-        print(f"Substituted path: {substituted_path}")
 
-        #command = ["adb", "shell", "twrp", "decrypt", f"{substituted_path}"]
-        # try:
-        #     result = subprocess.run(command, capture_output=True, text=True)
-        # except Exception as e:
-        #     print(f"failed to invoke decrypt command: {e}")
-        #     sys.exit(1)
+        command = ["adb", "shell", "twrp", "decrypt", f"{path}"]
+        try:
+            result = subprocess.run(command, capture_output=True, text=True)
+        except Exception as e:
+            print(f"failed to invoke decrypt command: {e}")
+            sys.exit(1)
         
-        # Parse output
-        #print(f"Output: {result}")
+        #Parse output
+        print(f"Output: {result}")
         status = result.returncode
         stdout = result.stdout
         stderr = result.stderr
@@ -46,16 +52,16 @@ class ADBHandler(PathHandler):
         # Write to CSV
         with open('log.csv', 'a', newline='') as f:
             writer = csv.writer(f)
-            writer.writerow([timestamp, path, substituted_path, stdout_replaced, stderr])
+            writer.writerow([timestamp, path, stdout_replaced, stderr])
 
         # Check for success
-        if status == 0 and stderr == "" and stdout in STDOUT_SUCCESS:
+        if status == 0 and stderr == "" and stdout in stdout_success:
             print(f"\nSuccess! Here is the output for the decryption attempt: {path}")
             return True
 
         # Regular output, continue
-        if status == 0 and stderr == "" and stdout == STDOUT_NORMAL:
-            print(f"Path {path} | {substituted_path} was not successful.")
+        if status == 0 and stderr == "" and stdout == stdout_normal:
+            print(f"Path {path} was not successful.")
             i = 0.1
             time_remaining = attempt_delay/1000
             while i <= time_remaining:
@@ -73,30 +79,23 @@ class ADBHandler(PathHandler):
         sys.exit(1)
 
 class DummyHandler(PathHandler):
-    def __init__(self, log_file="log.csv", secret_path=secret_path):
-        self.log_file = log_file
-        self.secret_path = secret_path
+    def __init__(self, test_path):
+        self.test_path = test_path
         self.counter = 0
 
     def try_path(self, path):
         if self.counter % 100 == 0:
-            # print("Reached max number of attempts. Exiting.")
-            # sys.exit()
-            print(f"Attempts {self.counter}, no success yet. Continuing...")
+            print(f"Attempt #{self.counter}")
         print(f"\nTrying path: {path} with length {len(path)}")
         render_path(path)
         render_path_steps(path) 
-        substituted_path = substitute(path)
-        print(f"Substituted path: {substituted_path}")
-        print(f"Secret path: {secret_path}")
 
-        if secret_path == substituted_path:
+        if path == self.test_path:
             print(f"\nSuccess! Here is the output for the decryption attempt: {path}")
             sys.exit()
             return True
-
         else:
             self.counter += 1
-            print(f"Path {path} | {substituted_path} was not successful.")
+            print(f"Path {path} was not successful.")
             return False
         

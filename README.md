@@ -121,6 +121,7 @@ XXX
 ## Config
 
 ## To Do
+* Update and verify grid neighbors in config.json
 * Test DummyHandler
 * Build CountPathHandler
 * In ADBHandler read attemptedPaths csv to set and check current path against attemptedPaths and skip if found

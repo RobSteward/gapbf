@@ -23,6 +23,11 @@ large.
 It is highly recommended to constrain the search space as much as possible if
 you partially know the pattern to greatly improve the brute force duration.
 
+This tool does brute forcing on the actual device. A brute force attempt could
+probably be greatly sped up by performing the attempt locally on a computer,
+to work around the timeouts. That's however a lot more work to implement (if
+even possible), so it's outside the scope of this project.
+## Configuration
 In the [`config.json`](./config.json) file you can tweak a few constants for:
 - Grid size
 - Minimum pattern length
@@ -32,10 +37,48 @@ In the [`config.json`](./config.json) file you can tweak a few constants for:
 - Nodes to exclude
 - Delay between attempts
 
-This tool does brute forcing on the actual device. A brute force attempt could
-probably be greatly sped up by performing the attempt locally on a computer,
-to work around the timeouts. That's however a lot more work to implement (if
-even possible), so it's outside the scope of this project.
+### Grid size 
+The grid size is defined by the number of nodes in the grid. As of writing Android supports 3, 4, 5, and 6 sides grids. The default is 3.
+Each grid is repesented by a list of lists. The first list is the top row, the second list is the middle row, and the third list is the bottom row. The nodes are numbered from left to right, top to bottom starting at 0. The default grid is a 3x3 grid with nodes 1-9.
+It looks like this:
+```
+[
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+]
+```
+
+This grid is based on the [note on TWRP decrypt pattern](https://twrp.me/faq/openrecoveryscript.html) and more information here at these two links (https://blog.alxu.ca/unlocking-large-pattern-encryption-in-twrp.html) and (https://github.com/TeamWin/Team-Win-Recovery-Project/blob/android-6.0/gui/patternpassword.cpp#L417)
+
+The 4x4 grid looks like this:
+```
+[
+    [1, 2, 3, 4],
+    [5, 6, 7, 8],
+    [9, :, ;, <],
+    [=, >, ?, @]
+]
+```
+
+The 5x5 grid looks like this:
+```
+[
+    [1, 2, 3, 4, 5],
+    [6, 7, 8, 9, :],
+    [;, <, =, >, ?],
+    [@, A, B, C, D],
+    [E, F, G, H, I]
+]
+```
+**I could not find information on the 6x6 pattern. Feel free to make a commit!**
+And the 6x6 grid looks like this:
+```
+[
+XXX
+]
+```
+
 
 ## Usage
 - Make sure you meet the [requirements](#requirements)
@@ -74,6 +117,8 @@ even possible), so it's outside the scope of this project.
   # Check log file
   cat log.csv
   ```
+
+## Config
 
 ## To Do
 * Test DummyHandler

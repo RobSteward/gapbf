@@ -84,18 +84,16 @@ class DummyHandler(PathHandler):
         self.counter = 0
 
     def try_path(self, path):
-        if self.counter % 100 == 0:
-            print(f"Attempt #{self.counter}")
-        print(f"\nTrying path: {path} with length {len(path)}")
-        render_path(path)
-        render_path_steps(path) 
+        print(f"Found valid path: {path} with length {len(path)}")
+        #render_path(path)
+        #render_path_steps(path) 
 
         if path == self.test_path:
-            print(f"\nSuccess! Here is the output for the decryption attempt: {path}")
+            #print(f"\nSuccess! Here is the output for the decryption attempt: {path}")
             sys.exit()
             return True
         else:
             self.counter += 1
-            print(f"Path {path} was not successful.")
-            return False
+           # print(f"Path {path} was not successful.")
+            return False, self.counter
         

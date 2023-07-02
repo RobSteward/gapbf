@@ -89,7 +89,7 @@ class DummyHandler(PathHandler):
         #render_path_steps(path) 
 
         if path == self.test_path:
-            #print(f"\nSuccess! Here is the output for the decryption attempt: {path}")
+            print(f"\nSuccess! Here is the output for the decryption attempt: {path}")
             sys.exit()
             return True
         else:

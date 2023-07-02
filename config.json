@@ -1,13 +1,24 @@
 {
   "config": {
-    "grid_size": 3,
+    "grid_size": 5,
     "path_min_length": 4,
     "path_max_length": 4,
-    "path_prefix": "",
-    "path_suffix": "",
-    "excluded_nodes": "",
+    "path_prefix": [
+      1
+    ],
+    "path_suffix": [
+      6
+    ],
+    "excluded_nodes": [
+      5
+    ],
     "attempt_delay": 10100,
-    "test_path": "E,@,;,6,1,7",
+    "test_path": [
+      1,
+      5,
+      8,
+      6
+    ],
     "outputstrings": {
       "stdout_normal": "Attempting to decrypt data partition or user data via command line.\nAttempting to decrypt FBE for user 0...\nFailed to decrypt user 0\n",
       "stdout_success": "Data successfully decrypted",

@@ -1,4 +1,5 @@
 from config import STDOUT_NORMAL, STDOUT_SUCCESS, STDOUT_ERROR
+from PathHandler import PathHandler
 
 def path_counter():
     path_counter[0] += 1
@@ -7,7 +8,7 @@ def path_counter():
 # which calls path_handler function on each path.
 # You can also specify the prefix from which to start
 # and the maximum path length.
-def dfs(graph, path_counter, path_handler, path_min_len = 4, path_max_len = 25, path_prefix = [], path_suffix=[], excluded_nodes = []):
+def dfs(graph, path_handler: PathHandler, path_min_len = 4, path_max_len = 25, path_prefix = [], path_suffix=[], excluded_nodes = []):
     visited = set(path_prefix)
     
     def dfs_helper(node, path):
@@ -15,8 +16,7 @@ def dfs(graph, path_counter, path_handler, path_min_len = 4, path_max_len = 25, 
         visited.add(node)
         if len(path) >= path_min_len: 
             if path[-1] in path_suffix or len(path_suffix) == 0:
-                path_handler(path)
-                path_counter
+                path_handler.try_path(path)
 
         if len(path) < path_max_len:        
             for neighbor in graph[node]:

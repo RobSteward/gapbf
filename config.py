@@ -48,10 +48,12 @@ graph = {
     24: [18, 19, 23]
 }
 
+secret_path = ['E', '@', ';', '6', '1', '7']
+
 # Config
 GRID_SIZE = 5
-path_min_length = 5
-path_max_length = 21
+path_min_length = 6
+path_max_length = 6
 path_prefix = [20, 15, 10, 5, 0]
 path_suffix = []
 excluded_nodes = [6, 9, 16, 21]

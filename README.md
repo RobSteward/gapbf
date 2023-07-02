@@ -76,6 +76,12 @@ even possible), so it's outside the scope of this project.
   cat log.csv
   ```
 
+## To Do
+* Replace grid with predefined substistued grids (3,4,5,6)
+* Remove substitue function
+* Test DummyHandler
+* Build CountPathHandler
+* In ADBHandler read attemptedPaths csv to set and check current path against attemptedPaths and skip if found
 ## License
 This project is released under the GNU GPL-3.0 license.
 Check out the [LICENSE](LICENSE) file for more information.

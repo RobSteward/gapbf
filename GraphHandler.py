@@ -14,14 +14,21 @@ class GraphHandler:
         visited = set(path_prefix)
         
         def dfs_helper(self, node, path):
+            # Convert path to list to avoid modifying the original
             path = list(path)
+            # Add current node to path
             path.append(node)
+            # Add current node to visited nodes in grid
             visited.add(node)
+            # If path is long enough, try it
             if len(path) >= path_min_len: 
+                # If path ends with a node in path_suffix, try it
                 if path[-1] in path_suffix or len(path_suffix) == 0:
                     path_handler.try_path(path)
 
-            if len(path) < path_max_len:        
+            # If path is not too long, continue traversing
+            if len(path) < path_max_len: 
+                # For each neighbor of current node in graph (if not excluded or already visited), traverse it
                 for neighbor in self.graph[node]:
                     if neighbor not in excluded_nodes:
                         if neighbor not in visited:

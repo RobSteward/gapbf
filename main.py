@@ -46,10 +46,12 @@ switch = {
     6: case_6x6
 }
 
+# Select correct graph and neighbors and initialize handlers
 graph, neighbors = switch.get(grid_size, default)()
 dummy_handler = DummyHandler(test_path)
 adb_handler = ADBHandler()
 
+# Run DFS
 if __name__ == "__main__":
     graph_handler = GraphHandler(graph, neighbors)
     graph_handler.dfs(dummy_handler, path_min_length, path_max_length, path_prefix, path_suffix, excluded_nodes)

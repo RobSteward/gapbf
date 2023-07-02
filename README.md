@@ -12,7 +12,7 @@ I succeeded to crack my 5x5 pattern in about XX.XX hours (at the time of writing
 - [TWRP][twrp] recovery
 - [`adb`][adb] (with connectivity to phone in TWRP)
 - [`git`][git]
-- [`python`][python] `v3.11.4` or higher
+- [`python`][https://www.python.org/] `v3.11.4` or higher
 
 ## Speed
 TWRP recovery enforces a hidden timeout of 10 seconds for each pattern attempt,

@@ -7,17 +7,17 @@
       1
     ],
     "path_suffix": [
-      6
+      4
     ],
     "excluded_nodes": [
-      5
+      2
     ],
     "attempt_delay": 10100,
     "test_path": [
       1,
-      5,
-      8,
-      6
+      2,
+      3,
+      4
     ],
     "outputstrings": {
       "stdout_normal": "Attempting to decrypt data partition or user data via command line.\nAttempting to decrypt FBE for user 0...\nFailed to decrypt user 0\n",

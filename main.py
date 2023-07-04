@@ -1,5 +1,5 @@
 import json
-from GraphHandler import GraphHandler
+from PathFinder import PathFinder
 from PathHandler import DummyHandler
 from PathHandler import ADBHandler
 from PathHandler import PathHandler
@@ -54,8 +54,9 @@ adb_handler = ADBHandler()
 # Run DFS
 if __name__ == "__main__":
     print(f"\nCalculating possible paths...")
-    graph_handler = GraphHandler(graph, neighbors)
-    graph_handler.dfs(dummy_handler, path_min_length, path_max_length, path_prefix, path_suffix, excluded_nodes)
+    path_finder = PathFinder(graph, neighbors)
+    path_finder.add_handler(dummy_handler)
+    path_finder.dfs(path_min_length, path_max_length, path_prefix, path_suffix, excluded_nodes)
     print(f"Completed.\nAttemptign brute force with {dummy_handler.counter} possible paths...")
     # graph_handler.dfs(adb_handler, path_min_length, path_max_length, path_prefix, path_suffix, excluded_nodes)
     print(f"Reached end of paths to try. Exiting. See log.csv for results.")

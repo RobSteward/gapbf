@@ -124,7 +124,11 @@ XXX
 * Convert config to yaml file
 * Move grids to GraphHandler
 * Update and verify grid neighbors in config.json
-* Test DummyHandler
+* Write ConfigHandler class
+* Move DFS variable reading/parameters to class level
+* Implement testing framework (pytest)
+* Write tests (unit test, integration test)
+* ~~Test DummyHandler~~
 * Build CountPathHandler
 * In ADBHandler read attemptedPaths csv to set and check current path against attemptedPaths and skip if found
 * ~~Replace grid with predefined substistued grids (3,4,5,6)~~

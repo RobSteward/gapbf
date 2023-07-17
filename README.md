@@ -121,6 +121,8 @@ XXX
 ## Config
 
 ## To Do
+* Convert config to yaml file
+* Move grids to GraphHandler
 * Update and verify grid neighbors in config.json
 * Test DummyHandler
 * Build CountPathHandler

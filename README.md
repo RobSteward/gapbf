@@ -72,15 +72,10 @@ The 5x5 grid looks like this:
 ]
 ```
 **I could not find information on the 6x6 pattern. Feel free to make a commit!**
-And the 6x6 grid *probably* looks like this:
+And the 6x6 grid looks like this:
 ```
 [
-    [1, 2, 3, 4, 5, 6],
-    [7, 8, 9, :, ;, <],
-    [=, >, ?, @, A, B],
-    [C, D, E, F, G, H],
-    [I, J, K, L, M, N],
-    [O, P, Q, R, S, T]
+XXX
 ]
 ```
 

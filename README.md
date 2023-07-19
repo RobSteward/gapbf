@@ -75,7 +75,12 @@ The 5x5 grid looks like this:
 And the 6x6 grid looks like this:
 ```
 [
-XXX
+    [1, 2, 3, 4, 5, 6,
+    [7, 8, 9, :, ;, <],
+    [=, >, ?, @, A, B],
+    [C, D, E, F, G, H],
+    [I, J, K, L, M, N],
+    [O, P, Q, R, S, T]
 ]
 ```
 
@@ -121,9 +126,9 @@ XXX
 ## Config
 
 ## To Do
-* Convert config to yaml file
-* Move grids to GraphHandler
-* Update and verify grid neighbors in config.json
+* ~~Update and verify grid neighbors in config.json~~
+* ~~Convert config to yaml file~~
+* ~~Move grids to GraphHandler~~
 * Write ConfigHandler class
 * Move DFS variable reading/parameters to class level
 * Implement testing framework (pytest)

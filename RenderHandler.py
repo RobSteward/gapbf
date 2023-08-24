@@ -1,11 +1,10 @@
-import json
+from ConfigHandler import ConfigHandler
 
 # Load config file
-with open('config.json') as config_file:
-    data = json.load(config_file)
+config = ConfigHandler('config.yaml')
 
 # Assigning variables
-grid_size = data["config"]["grid_size"]
+grid_size = config.get_value('grid_size')
 
 
 def render_path(path):

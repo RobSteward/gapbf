@@ -28,7 +28,7 @@ probably be greatly sped up by performing the attempt locally on a computer,
 to work around the timeouts. That's however a lot more work to implement (if
 even possible), so it's outside the scope of this project.
 ## Configuration
-In the [`config.json`](./config.json) file you can tweak a few constants for:
+In the [`config.yaml`](./config.yaml) file you can tweak a few constants for:
 - Grid size
 - Minimum pattern length
 - Maximum pattern length
@@ -72,10 +72,10 @@ The 5x5 grid looks like this:
 ]
 ```
 **I could not find information on the 6x6 pattern. Feel free to make a commit!**
-And the 6x6 grid looks like this:
+My *assumption* is that the 6x6 grid looks like this:
 ```
 [
-    [1, 2, 3, 4, 5, 6,
+    [1, 2, 3, 4, 5, 6],
     [7, 8, 9, :, ;, <],
     [=, >, ?, @, A, B],
     [C, D, E, F, G, H],
@@ -94,10 +94,10 @@ And the 6x6 grid looks like this:
   cd gapbf
   ```
 
-- Tweak properties in [`config.json`](./config.json):
+- Tweak properties in [`config.yaml`](./config.yaml):
   ```bash
   # Edit configuration
-  code config.json
+  code config.yaml
   ```
 
   Constrain it as much as possible to reduce pattern search space, which greatly
@@ -126,10 +126,10 @@ And the 6x6 grid looks like this:
 ## Config
 
 ## To Do
-* ~~Update and verify grid neighbors in config.json~~
+* ~~Update and verify grid neighbors in config.yaml~~
 * ~~Convert config to yaml file~~
 * ~~Move grids to GraphHandler~~
-* Write ConfigHandler class
+* ~~Write ConfigHandler class~~
 * Move DFS variable reading/parameters to class level
 * Implement testing framework (pytest)
 * Write tests (unit test, integration test)

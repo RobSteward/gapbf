@@ -3,20 +3,19 @@ import subprocess
 import sys
 import time
 import csv
-import json
 from datetime import datetime
 from RenderHandler import render_path
 from RenderHandler import render_path_steps
+from ConfigHandler import ConfigHandler
 
 # Load config file
-with open('config.json') as config_file:
-    data = json.load(config_file)
+config = ConfigHandler('config.yaml')
 
 # Assigning variables
-stdout_normal = data["config"]["outputstrings"]["stdout_normal"]
-stdout_success = data["config"]["outputstrings"]["stdout_success"]
-stdout_error = data["config"]["outputstrings"]["stdout_error"]
-attempt_delay = data["config"]["attempt_delay"]
+stdout_normal = config.get_value('outputstrings.stdout_normal')
+stdout_success = config.get_value('outputstrings.stdout_success')
+stdout_error = config.get_value('outputstrings.stdout_error')
+attempt_delay = config.get_value('attempt_delay')
 
 class PathHandler(ABC):
     

@@ -2,10 +2,7 @@ from ConfigHandler import ConfigHandler
 
 # Load config file
 config = ConfigHandler('config.yaml')
-
-# Assigning variables
-grid_size = config.get_value('grid_size')
-
+grid_size = config.grid_size
 
 def render_path(path):
     # Create a path slug and print it

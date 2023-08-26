@@ -1,41 +1,29 @@
 from PathFinder import PathFinder
 from PathHandler import DummyHandler
 from PathHandler import ADBHandler
-from PathHandler import PathHandler
 from ConfigHandler import ConfigHandler
 
 # Load config file
 config = ConfigHandler('config.yaml')
-
-# Assigning variables
-grid_size = config.get_value('grid_size')
-path_min_length = config.get_value('path_min_length')
-path_max_length = config.get_value('path_max_length')
-path_prefix = config.get_value('path_prefix')
-path_suffix = config.get_value('path_suffix')
-excluded_nodes = config.get_value('excluded_nodes')
-attempt_delay = config.get_value('attempt_delay')
-test_path = config.get_value('test_path')
-stdout_normal = config.get_value('outputstrings.stdout_normal')
-stdout_success = config.get_value('outputstrings.stdout_success')
-stdout_error = config.get_value('outputstrings.stdout_error')
-
-
+#print("Grid size:", config.grid_size)
+path_finder = PathFinder(config.grid_size)
+#print("Graphs:", path_finder.graphs)
 # Load graph based on grid size
-  # See https://twrp.me/faq/openrecoveryscript.html
-  # print(f"Received path '{path}'")
-  # Define a dictionary with the substitutions
+
 def default():
-    return PathFinder.graphs[3]["graph"], PathFinder.graphs[3]["neighbors"]
+    if 3 in path_finder.graphs:
+        return path_finder.graphs[0][3]["graph"], path_finder.graphs[0][3]["neighbors"]
+    else:
+        raise ValueError("Unexpected grid size")
 
 def case_4():
-    return PathFinder.graphs[4]["graph"], PathFinder.graphs[4]["neighbors"]
+    return path_finder.graphs[0][4]["graph"], path_finder.graphs[0][4]["neighbors"]
 
 def case_5():
-    return PathFinder.graphs[5]["graph"], PathFinder.graphs[5]["neighbors"]
+    return path_finder.graphs[0][5]["graph"], path_finder.graphs[0][5]["neighbors"]
 
 def case_6():
-    return PathFinder.graphs[6]["graph"], PathFinder.graphs[6]["neighbors"]
+    return path_finder.graphs[0][6]["graph"], path_finder.graphs[0][6]["neighbors"]
 
 switch = {
     3: default,
@@ -45,16 +33,16 @@ switch = {
 }
 
 # Select correct graph and neighbors and initialize handlers
-graph, neighbors = switch.get(grid_size, default)()
-dummy_handler = DummyHandler(test_path)
-adb_handler = ADBHandler()
+graph, neighbors = switch.get(config.grid_size, default)()
+dummy_handler = DummyHandler(config)
+adb_handler = ADBHandler(config)
 
-# Run DFS
+# Run main program
 if __name__ == "__main__":
     print(f"\nCalculating possible paths...")
-    
     path_finder.add_handler(dummy_handler)
-    path_finder.dfs(path_min_length, path_max_length, path_prefix, path_suffix, excluded_nodes)
-    print(f"Completed.\nAttemptign brute force with {dummy_handler.counter} possible paths...")
-    # graph_handler.dfs(adb_handler, path_min_length, path_max_length, path_prefix, path_suffix, excluded_nodes)
+    path_finder.add_handler(adb_handler)
+    #path_finder.dfs(graph, neighbors, config.path_min_length, config.path_max_length, config.path_prefix, config.path_suffix, config.excluded_nodes)
+    print(f"Completed. Attemptign brute force with {dummy_handler.counter} total possible paths...")
+    path_finder.dfs(adb_handler, config.path_min_length, config.path_max_length, config.path_prefix, config.path_suffix, config.excluded_nodes)
     print(f"Reached end of paths to try. Exiting. See log.csv for results.")

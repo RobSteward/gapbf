@@ -4,18 +4,18 @@ import sys
 import time
 import csv
 from datetime import datetime
-from RenderHandler import render_path
-from RenderHandler import render_path_steps
+from PathRenderer import render_path
+from PathRenderer import render_path_steps
 from ConfigHandler import ConfigHandler
 
-# Load config file
 config = ConfigHandler('config.yaml')
 
-# Assigning variables
-stdout_normal = config.get_value('outputstrings.stdout_normal')
-stdout_success = config.get_value('outputstrings.stdout_success')
-stdout_error = config.get_value('outputstrings.stdout_error')
-attempt_delay = config.get_value('attempt_delay')
+def __init__(self, config): 
+        self.stdout_normal = config.outputstrings.stdout_normal
+        self.stdout_success = config.outputstrings.stdout_success
+        self.stdout_error = config.outputstrings.stdout_error
+        self.attempt_delay = config.attempt_delay
+        self.log_file = config.log_file
 
 class PathHandler(ABC):
     
@@ -24,11 +24,18 @@ class PathHandler(ABC):
         pass
 
 class ADBHandler(PathHandler):
-    def __init__(self, log_file="log.csv"):
-        self.log_file = log_file
+    def __init__(self, config):
+        self.log_file = config.log_file_path
 
         # Credit to https://github.com/timvisee/apbf
     def try_path(self, path):
+        # parse through paths in log_file and check if path is already in there before trying, if so, skip
+        with open(self.log_file, newline='') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                if path == row[1]:
+                    print(f"Skipping path {path} because it was already tried.")
+                    return False
         print(f"\nTrying path: {path} with length {len(path)}")
         render_path(path)
         render_path_steps(path) 
@@ -78,16 +85,16 @@ class ADBHandler(PathHandler):
         sys.exit(1)
 
 class DummyHandler(PathHandler):
-    def __init__(self, test_path):
-        self.test_path = test_path
+    def __init__(self, config):
+        self.config = config
         self.counter = 0
 
     def try_path(self, path):
-        print(f"Found valid path: {path} with length {len(path)}")
+        #print(f"Found valid path: {path} with length {len(path)}")
         #render_path(path)
         #render_path_steps(path) 
 
-        if path == self.test_path:
+        if path == self.config.test_path:
             print(f"\nSuccess! Here is the output for the decryption attempt: {path}")
             sys.exit()
             return True

@@ -1,9 +1,7 @@
 from PathHandler import PathHandler    
-    
-    # Depth-first search recursive traversal of the graph,
-    #  # which calls path_handler function on each path.
-    # You can also specify the prefix from which to start
-    # and the maximum path length.
+    # See https://twrp.me/faq/openrecoveryscript.html
+    # Define a dictionary with the substitutions
+
 class PathFinder:
     def __init__(self, graph_size):
         self.graph_size = graph_size
@@ -124,8 +122,9 @@ class PathFinder:
     def add_handler(self, handler: PathHandler):
         assert isinstance(handler, PathHandler)
         self.__handlers.append(handler)
-
-    def dfs(self, path_min_len=4, path_max_len=25, path_prefix=[], path_suffix=[], excluded_nodes=[]):
+    
+    # Depth-first search recursive traversal of the graph,
+    def dfs(self, graph, neighbors, path_min_len=4, path_max_len=36, path_prefix=[], path_suffix=[], excluded_nodes=[]):
         visited = set(path_prefix)
 
         def dfs_helper(node, path):
@@ -139,7 +138,7 @@ class PathFinder:
                         handler.try_path(path)
 
             if len(path) < path_max_len:
-                for neighbor in self.neighbors[str(node)]:
+                for neighbor in neighbors[str(node)]:
                     if neighbor not in excluded_nodes and neighbor not in visited:
                         dfs_helper(neighbor, path)
 

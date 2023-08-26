@@ -130,14 +130,14 @@ My *assumption* is that the 6x6 grid looks like this:
 * ~~Convert config to yaml file~~
 * ~~Move grids to GraphHandler~~
 * ~~Write ConfigHandler class~~
+* ~~Test DummyHandler~~
+* ~~In ADBHandler read attemptedPaths csv to set and check current path against attemptedPaths and skip if found~~
+* ~~Replace grid with predefined substistued grids (3,4,5,6)~~
+* ~~Remove substitue function~~
+* Build CountPathHandler
 * Move DFS variable reading/parameters to class level
 * Implement testing framework (pytest)
 * Write tests (unit test, integration test)
-* ~~Test DummyHandler~~
-* Build CountPathHandler
-* In ADBHandler read attemptedPaths csv to set and check current path against attemptedPaths and skip if found
-* ~~Replace grid with predefined substistued grids (3,4,5,6)~~
-* ~~Remove substitue function~~
 
 ## License
 This project is released under the GNU GPL-3.0 license.

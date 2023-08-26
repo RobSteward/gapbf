@@ -142,10 +142,10 @@ In the config.yaml file you can tweak a few constants for:
 * ~~In ADBHandler read attemptedPaths csv to set and check current path against attemptedPaths and skip if found~~
 * ~~Replace grid with predefined substistued grids (3,4,5,6)~~
 * ~~Remove substitue function~~
-* Build CountPathHandler
+* ~~Build CountPathHandler~~
 * Move DFS variable reading/parameters to class level
-* Implement testing framework (pytest)
-* Write tests (unit test, integration test)
+* ~~Implement testing framework (pytest)~~
+* Write tests (~~unit test~~, integration test)
 
 ## License
 This project is released under the GNU GPL-3.0 license.

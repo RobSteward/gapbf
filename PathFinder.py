@@ -1,11 +1,10 @@
+from typing import List, Union, Set
 from PathHandler import PathHandler    
     # See https://twrp.me/faq/openrecoveryscript.html
     # Define a dictionary with the substitutions
 
 class PathFinder:
-    def __init__(self, graph_size):
-        self.graph_size = graph_size
-        self.graphs = {
+    graphs: dict =  {
             3: {
                 "graph": [1,2,3,4,5,6,7,8,9], 
                 "neighbors": {
@@ -112,33 +111,91 @@ class PathFinder:
                     "T": ["M", "N", "S"]
                 }
             },
-        },
+        }
+
+    def __init__(self, graph_size: int):
+        #print(f"Debug: Type of self.graphs: {type(self.graphs)}, Value: {self.graphs}")
+        if graph_size not in self.graphs:
+            raise ValueError(f'Invalid graph_size: {graph_size}. Available sizes are: {list(self.graphs.keys())}')
+        
+        self.graph_size = graph_size
+        graph_data = self.graphs.get(self.graph_size, {})
+        self.graph = graph_data.get("graph", [])
+        self.neighbors = graph_data.get("neighbors", {})
         self.__handlers = []
 
     @property
     def handlers(self):
         return self.__handlers
 
-    def add_handler(self, handler: PathHandler):
-        assert isinstance(handler, PathHandler)
+    def add_handler(self, handler: PathHandler) -> None:
+        if not isinstance(handler, PathHandler):
+            raise TypeError("Expected a PathHandler instance.")
         self.__handlers.append(handler)
-    
-    # Depth-first search recursive traversal of the graph,
-    def dfs(self, graph, neighbors, path_min_len=4, path_max_len=36, path_prefix=[], path_suffix=[], excluded_nodes=[]):
+        
+    def count_possible_paths(self, path_min_len: int = 4,
+                             path_max_len: int = 36,
+                             path_prefix: List[Union[int, str]] = [],
+                             path_suffix: Set[Union[int, str]] = [],
+                             excluded_nodes: Set[Union[int, str]] = []) -> int:
+        """
+        Count the number of possible paths based on the given configuration.
+        """
         visited = set(path_prefix)
+        path_suffix = set(map(int, path_suffix))  # Convert once
+        counter = 0
 
-        def dfs_helper(node, path):
+        def dfs_counter(node: Union[int, str], path: List[Union[int, str]]) -> None:
+            nonlocal counter
             path = list(path)
             path.append(node)
             visited.add(node)
 
             if len(path) >= path_min_len:
-                if path[-1] in list(map(int, path_suffix)) or not path_suffix:
+                if path[-1] in path_suffix or not path_suffix:
+                    counter += 1
+
+            if len(path) < path_max_len:
+                for neighbor in self.neighbors[str(node)]:
+                    if neighbor not in excluded_nodes and neighbor not in visited:
+                        dfs_counter(neighbor, path)
+
+            path.pop()
+            visited.remove(node)
+
+        if not path_prefix:
+            for node in self.graph:
+                if node not in visited:
+                    dfs_counter(node, path_prefix)
+        else:
+            dfs_counter(path_prefix[-1], path_prefix[:-1])
+
+        return counter
+
+    # Depth-first search recursive traversal of the graph,
+    def dfs(self, path_min_len: int = 4,
+            path_max_len: int = 36,
+            path_prefix: List[Union[int, str]] = [],
+            path_suffix: Set[Union[int, str]] = [],
+            excluded_nodes:  Set[Union[int, str]] = []) -> None:
+        """
+        Depth-first search recursive traversal of the graph.
+        """
+        visited = set(path_prefix)
+        path_suffix = set(map(int, path_suffix))  # Convert once
+
+        def dfs_helper(node: Union[int, str], path: List[Union[int, str]]) -> None:
+            path = list(path)
+            path.append(node)
+            visited.add(node)
+
+            if len(path) >= path_min_len:
+                if path[-1] in path_suffix or not path_suffix:
                     for handler in self.handlers:
                         handler.try_path(path)
 
             if len(path) < path_max_len:
-                for neighbor in neighbors[str(node)]:
+                for neighbor in self.neighbors[str(node)]:
                     if neighbor not in excluded_nodes and neighbor not in visited:
                         dfs_helper(neighbor, path)
 
@@ -151,3 +208,5 @@ class PathFinder:
                     dfs_helper(node, path_prefix)
         else:
             dfs_helper(path_prefix[-1], path_prefix[:-1])
+
+    

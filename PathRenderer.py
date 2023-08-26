@@ -5,26 +5,31 @@ config = ConfigHandler('config.yaml')
 grid_size = config.grid_size
 
 def render_path(path):
+    rows = []
     # Create a path slug and print it
     slug = "-".join(str(p) for p in path)
-    print(f"\nPattern: {slug}")
 
     # Render the pattern grid
     for y in range(grid_size):
+        row = []
         for x in range(grid_size):
             if y * grid_size + x in path:
-                print("●", end="")
+                row.append("●")
             else:
-                print("○", end="")
-        print()
+                row.append("○")
+        rows.append("".join(row))
+    return rows
 
 def render_path_steps(path):
+    rows = []
     # Render the path steps
     for y in range(grid_size):
+        row = []
         for x in range(grid_size):
             value = y * grid_size + x
             if value in path:
-                print(f"{path.index(value) + 1} ", end="")
+                row.append(f"{path.index(value) + 1}")
             else:
-                print("· ", end="")
-        print()
+                row.append("·")
+        rows.append(" ".join(row))
+    return rows

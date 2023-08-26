@@ -37,8 +37,12 @@ class ADBHandler(PathHandler):
                     print(f"Skipping path {path} because it was already tried.")
                     return False
         print(f"\nTrying path: {path} with length {len(path)}")
-        render_path(path)
-        render_path_steps(path) 
+
+        path_rows = render_path(path)
+        steps_rows = render_path_steps(path)
+        # Print side-by-side
+        for path_row, steps_row in zip(path_rows, steps_rows):
+            print(f"{path_row}    {steps_row}")
 
         command = ["adb", "shell", "twrp", "decrypt", f"{path}"]
         try:

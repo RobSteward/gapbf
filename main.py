@@ -12,18 +12,18 @@ path_finder = PathFinder(config.grid_size)
 
 def default():
     if 3 in path_finder.graphs:
-        return path_finder.graphs[0][3]["graph"], path_finder.graphs[0][3]["neighbors"]
+        return path_finder.graphs[3]["graph"], path_finder.graphs[3]["neighbors"]
     else:
         raise ValueError("Unexpected grid size")
 
 def case_4():
-    return path_finder.graphs[0][4]["graph"], path_finder.graphs[0][4]["neighbors"]
+    return path_finder.graphs[4]["graph"], path_finder.graphs[4]["neighbors"]
 
 def case_5():
-    return path_finder.graphs[0][5]["graph"], path_finder.graphs[0][5]["neighbors"]
+    return path_finder.graphs[5]["graph"], path_finder.graphs[5]["neighbors"]
 
 def case_6():
-    return path_finder.graphs[0][6]["graph"], path_finder.graphs[0][6]["neighbors"]
+    return path_finder.graphs[6]["graph"], path_finder.graphs[6]["neighbors"]
 
 switch = {
     3: default,
@@ -40,9 +40,25 @@ adb_handler = ADBHandler(config)
 # Run main program
 if __name__ == "__main__":
     print(f"\nCalculating possible paths...")
+    
+    # Count possible paths
+    possible_paths = path_finder.count_possible_paths(
+        path_min_len=config.path_min_length, 
+        path_max_len=config.path_max_length, 
+        path_prefix=config.path_prefix, 
+        path_suffix=config.path_suffix, 
+        excluded_nodes=config.excluded_nodes
+    )
+    
+    print(f"Completed. Attempting brute force with {possible_paths} possible paths...")
     path_finder.add_handler(dummy_handler)
-    path_finder.add_handler(adb_handler)
-    #path_finder.dfs(graph, neighbors, config.path_min_length, config.path_max_length, config.path_prefix, config.path_suffix, config.excluded_nodes)
-    print(f"Completed. Attemptign brute force with {dummy_handler.counter} total possible paths...")
-    path_finder.dfs(adb_handler, config.path_min_length, config.path_max_length, config.path_prefix, config.path_suffix, config.excluded_nodes)
+    #path_finder.add_handler(adb_handler)
+    path_finder.dfs(
+        path_min_len=config.path_min_length, 
+        path_max_len=config.path_max_length, 
+        path_prefix=config.path_prefix, 
+        path_suffix=config.path_suffix, 
+        excluded_nodes=config.excluded_nodes
+    )
+    
     print(f"Reached end of paths to try. Exiting. See log.csv for results.")

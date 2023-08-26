@@ -116,7 +116,7 @@ My *assumption* is that the 6x6 grid looks like this:
   python main.py
   ```
 
-- Wait for a successful attempt, this may take a long while
+- Wait for a successful attempt. **This may take a long while**
 - If the program gets interrupted, check the log file for the last successful attempt
   ```bash
   # Check log file
@@ -124,6 +124,14 @@ My *assumption* is that the 6x6 grid looks like this:
   ```
 
 ## Config
+In the config.yaml file you can tweak a few constants for:
+- Grid size
+- Minimum pattern length
+- Maximum pattern length
+- Path prefix
+- Path suffix
+- Nodes to exclude
+- Delay between attempts
 
 ## To Do
 * ~~Update and verify grid neighbors in config.yaml~~

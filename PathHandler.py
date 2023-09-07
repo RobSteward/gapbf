@@ -6,9 +6,9 @@ import csv
 from datetime import datetime
 from PathRenderer import render_path
 from PathRenderer import render_path_steps
-from ConfigHandler import ConfigHandler
+from Config import Config
 
-config = ConfigHandler('config.yaml')
+config = Config('config.yaml')
 
 def __init__(self, config): 
         self.stdout_normal = config.outputstrings.stdout_normal
@@ -20,7 +20,7 @@ def __init__(self, config):
 class PathHandler(ABC):
     
     @abstractmethod
-    def try_path(self, path):
+    def process_path(self, path) -> bool:
         pass
 
 class ADBHandler(PathHandler):
@@ -28,7 +28,7 @@ class ADBHandler(PathHandler):
         self.log_file = config.log_file_path
 
         # Credit to https://github.com/timvisee/apbf
-    def try_path(self, path):
+    def process_path(self, path):
         # parse through paths in log_file and check if path is already in there before trying, if so, skip
         with open(self.log_file, newline='') as f:
             reader = csv.reader(f)
@@ -65,15 +65,15 @@ class ADBHandler(PathHandler):
             writer.writerow([timestamp, path, stdout_replaced, stderr])
 
         # Check for success
-        if status == 0 and stderr == "" and stdout in stdout_success:
+        if status == 0 and stderr == "" and stdout in self.stdout_success:
             print(f"\nSuccess! Here is the output for the decryption attempt: {path}")
-            return True
+            return True, None
 
         # Regular output, continue
-        if status == 0 and stderr == "" and stdout == stdout_normal:
+        if status == 0 and stderr == "" and stdout == self.stdout_normal:
             print(f"Path {path} was not successful.")
             i = 0.1
-            time_remaining = attempt_delay/1000
+            time_remaining = self.attempt_delay/1000
             while i <= time_remaining:
                 time.sleep(i)
                 time_remaining = time_remaining - i
@@ -93,7 +93,7 @@ class DummyHandler(PathHandler):
         self.config = config
         self.counter = 0
 
-    def try_path(self, path):
+    def process_path(self, path):
         #print(f"Found valid path: {path} with length {len(path)}")
         #render_path(path)
         #render_path_steps(path) 
@@ -105,5 +105,52 @@ class DummyHandler(PathHandler):
         else:
             self.counter += 1
            # print(f"Path {path} was not successful.")
-            return False, self.counter
-        
+            return False
+
+class RenderHandler(PathHandler):
+    def __init__(self, config):
+        self.config = config
+        self.counter = 0
+
+    def render_path(path):
+        rows = []
+        # Create a path slug and print it
+        slug = "-".join(str(p) for p in path)
+
+        # Render the pattern grid
+        for y in range(grid_size):
+            row = []
+            for x in range(grid_size):
+                if y * grid_size + x in path:
+                    row.append("●")
+                else:
+                    row.append("○")
+            rows.append("".join(row))
+        return rows
+
+    def render_path_steps(path):
+        rows = []
+        # Render the path steps
+        for y in range(grid_size):
+            row = []
+            for x in range(grid_size):
+                value = y * grid_size + x
+                if value in path:
+                    row.append(f"{path.index(value) + 1}")
+                else:
+                    row.append("·")
+            rows.append(" ".join(row))
+        return rows
+    
+class LogHandler(PathHandler):
+def __init__(self, config):
+    self.config = config
+    self.adb_handler = ADBHandler(config)
+
+def process_path(self, path):
+    success, output = self.adb_handler.process_path(path)
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with open(self.config.log_file_path, 'a', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow([timestamp, path, success, output])
+    return success, output

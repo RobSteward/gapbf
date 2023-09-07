@@ -1,8 +1,8 @@
 import unittest
 import os
-from ConfigHandler import ConfigHandler
+from Config import Config
 
-class TestConfigHandler(unittest.TestCase):
+class TestConfig(unittest.TestCase):
     def setUp(self):
         self.config_file = 'test_config.yaml'
         with open(self.config_file, 'w') as f:
@@ -12,7 +12,7 @@ class TestConfigHandler(unittest.TestCase):
         os.remove(self.config_file)
 
     def test_load_config(self):
-        handler = ConfigHandler(self.config_file)
+        handler = Config.(self.config_file)
         config = handler.load_config(self.config_file)
         self.assertEqual(config['config']['grid_size'], 10)
         self.assertEqual(config['config']['path_min_length'], 5)
@@ -28,7 +28,7 @@ class TestConfigHandler(unittest.TestCase):
         self.assertEqual(config['config']['log_file_path'], 'log.txt')
 
     def test_get_value(self):
-        handler = ConfigHandler(self.config_file)
+        handler = Config(self.config_file)
         self.assertEqual(handler.get_value('config.grid_size'), 10)
         self.assertEqual(handler.get_value('config.path_min_length'), 5)
         self.assertEqual(handler.get_value('config.path_max_length'), 20)

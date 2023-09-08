@@ -4,8 +4,6 @@ import sys
 import time
 import csv
 from datetime import datetime
-from PathRenderer import render_path
-from PathRenderer import render_path_steps
 from Config import Config
 
 config = Config('config.yaml')
@@ -37,12 +35,6 @@ class ADBHandler(PathHandler):
                     print(f"Skipping path {path} because it was already tried.")
                     return False
         print(f"\nTrying path: {path} with length {len(path)}")
-
-        path_rows = render_path(path)
-        steps_rows = render_path_steps(path)
-        # Print side-by-side
-        for path_row, steps_row in zip(path_rows, steps_rows):
-            print(f"{path_row}    {steps_row}")
 
         command = ["adb", "shell", "twrp", "decrypt", f"{path}"]
         try:
@@ -107,7 +99,7 @@ class DummyHandler(PathHandler):
            # print(f"Path {path} was not successful.")
             return False
 
-class RenderHandler(PathHandler):
+class PrintHandler(PathHandler):
     def __init__(self, config):
         self.config = config
         self.counter = 0
@@ -142,15 +134,22 @@ class RenderHandler(PathHandler):
             rows.append(" ".join(row))
         return rows
     
+    def process_path(path):
+        path_rows = render_path(path)
+        steps_rows = render_path_steps(path)
+        # Print side-by-side
+        for path_row, steps_row in zip(path_rows, steps_rows):
+            print(f"{path_row}    {steps_row}")
+    
 class LogHandler(PathHandler):
-def __init__(self, config):
-    self.config = config
-    self.adb_handler = ADBHandler(config)
+    def __init__(self, config):
+        self.config = config
+        self.adb_handler = ADBHandler(config)
 
-def process_path(self, path):
-    success, output = self.adb_handler.process_path(path)
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    with open(self.config.log_file_path, 'a', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow([timestamp, path, success, output])
-    return success, output
+    def process_path(self, path):
+        success, output = self.adb_handler.process_path(path)
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with open(self.config.log_file_path, 'a', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow([timestamp, path, success, output])
+        return success, output

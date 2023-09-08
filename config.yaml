@@ -1,24 +1,23 @@
-config:
-  log_file_path: "log.csv"
-  grid_size: 5
-  path_min_length: 4
-  path_max_length: 4
-  path_prefix:
-    - 1
-  path_suffix:  
-    - 4
-  excluded_nodes:
-    - 2
-  test_path:
-    - 1
-    - 2 
-    - 3
-    - 4
-  attempt_delay: 10100
-  outputstrings:
-    stdout_normal: >
-      Attempting to decrypt data partition or user data via command line.
-      Attempting to decrypt FBE for user 0...
-      Failed to decrypt user 0
-    stdout_success: Data successfully decrypted  
-    stdout_error: some_error_string
+log_file_path: "log.csv"
+grid_size: 5
+path_min_length: 4
+path_max_length: 4
+path_prefix:
+  - 1
+path_suffix:  
+  - 4
+excluded_nodes:
+  - 2
+test_path:
+  - 1
+  - 2 
+  - 3
+  - 4
+attempt_delay: 10100
+outputstrings:
+  stdout_normal: >
+    Attempting to decrypt data partition or user data via command line.
+    Attempting to decrypt FBE for user 0...
+    Failed to decrypt user 0
+  stdout_success: Data successfully decrypted  
+  stdout_error: some_error_string

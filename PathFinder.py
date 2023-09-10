@@ -1,11 +1,11 @@
 from typing import List, Union, Set
-from PathHandler import PathHandler    
+import logging
+from PathHandler import PathHandler   
 
     # See https://twrp.me/faq/openrecoveryscript.html
     # Define a dictionary with the substitutions
-    # SHould have 1 property, 1 method to try_path and 1 method to register handlers
-    #print("Graphs:", path_finder.graphs)
-    # Load graph based on grid size
+    # Sets configuration values with which to initiate PathFinder (graph and neighbors based on grid size)
+    # Should have 1 property, 1 method to handle_path and 1 method to register handlers
 class PathFinder:
     graphs: dict =  {
             3: {
@@ -116,8 +116,9 @@ class PathFinder:
             },
         }
 
-    def __init__(self, grid_size: int, path_min_len: int = 4, path_max_len: int = 36, path_prefix: List[Union[int, str]] = [], path_suffix: Set[Union[int, str]] = [], excluded_nodes: Set[Union[int, str]] = []):
-        #print(f"Debug: Type of self.graphs: {type(self.graphs)}, Value: {self.graphs}")
+    def __init__(self, grid_size: int, path_min_len: int = 4, path_max_len: int = 36, path_prefix: List[Union[int, str]] = [], path_suffix: Set[Union[int, str]] = [], excluded_nodes: Set[Union[int, str]] = [], debug = False):
+        self.path_finder_logger = logging.getLogger(__name__)
+        self.path_finder_logger.setLevel(logging.DEBUG)
         if grid_size not in self.graphs:
             raise ValueError(f'Invalid grid_size: {grid_size}. Available sizes are: {list(self.graphs.keys())}')
         self.grid_size = grid_size
@@ -131,6 +132,9 @@ class PathFinder:
         self._path_prefix = path_prefix
         self._path_suffix = path_suffix
         self._excluded_nodes = excluded_nodes
+        self.debug = debug
+        if self.debug:
+            self.path_finder_logger.debug(f"Type of self.graphs: {type(self.graphs)}, Value: {self.graphs}")
     
     @property
     def handlers(self):
@@ -147,9 +151,9 @@ class PathFinder:
             raise TypeError("Expected a PathHandler instance.")
         self.__handlers.append(handler)
         
-    def find_path(self, path):
+    def process_path(self, path):
         for handler in self.handlers:
-            success, output = handler.process_path(path)
+            success, output = handler.handle_path(path)
             if success:
                 return path, output
         return None, None
@@ -204,8 +208,10 @@ class PathFinder:
 
             if len(path) >= self._path_min_len:
                 if path[-1] in path_suffix or not path_suffix:
+                    if self.debug:
+                        self.path_finder_logger.info(f"Debug: Found valid path: {path} with length {len(path)}")
                     for handler in self.handlers:
-                        handler.try_path(path)
+                        handler.handle_path(path)
 
             if len(path) < self._path_max_len:
                 for neighbor in self.neighbors[str(node)]:

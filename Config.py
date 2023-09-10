@@ -17,6 +17,7 @@ class Config:
     stdout_success: str = ''
     stdout_error: str = ''
     log_file_path: str = ''
+    debug: bool = False
         
     @classmethod
     def load_config(cls, config_file_path: str) -> 'Config':
@@ -41,7 +42,8 @@ class Config:
             stdout_normal=config_data.get('outputstrings', {}).get('stdout_normal', ''),
             stdout_success=config_data.get('outputstrings', {}).get('stdout_success', ''),
             stdout_error=config_data.get('outputstrings', {}).get('stdout_error', ''),
-            log_file_path=config_data.get('log_file_path', '')
+            log_file_path=config_data.get('log_file_path', ''),
+            debug=config_data.get('debug', False)
         )
 
 def __repr__(self) -> str:

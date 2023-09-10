@@ -143,9 +143,14 @@ In the config.yaml file you can tweak a few constants for:
 * ~~Replace grid with predefined substistued grids (3,4,5,6)~~
 * ~~Remove substitue function~~
 * ~~Build CountPathHandler~~
-* Move DFS variable reading/parameters to class level
+* ~~Move DFS variable reading/parameters to class level~~
 * ~~Implement testing framework (pytest)~~
-* Write tests (~~unit test~~, integration test)
+* ~~Write tests (~~unit test~~, integration test)~~
+* Order handlers (ADB, iOS, Render, Test, Log)
+* Improve error handling
+* Add documentation
+* Verify tests
+* Make config loading consistent and efficient (config object, class assignment, vs direct loading)
 
 ## License
 This project is released under the GNU GPL-3.0 license.

@@ -2,68 +2,88 @@ from abc import ABC, abstractmethod
 import subprocess
 import sys
 import time
+import os
 import csv
+import logging
 from datetime import datetime
 from Config import Config
 
-config = Config('config.yaml')
-
-def __init__(self, config): 
-        self.stdout_normal = config.outputstrings.stdout_normal
-        self.stdout_success = config.outputstrings.stdout_success
-        self.stdout_error = config.outputstrings.stdout_error
-        self.attempt_delay = config.attempt_delay
-        self.log_file = config.log_file
-
 class PathHandler(ABC):
+    path_handler_logger = logging.getLogger(__name__)
+    path_handler_logger.setLevel(logging.DEBUG)
+    path_handler_logger.addHandler(logging.StreamHandler(sys.stdout))
     
     @abstractmethod
-    def process_path(self, path) -> bool:
+    def handle_path(self, path) -> bool:
         pass
+    
+    def __init__(self):
+        self.config = Config.load_config('config.yaml')
 
 class ADBHandler(PathHandler):
-    def __init__(self, config):
-        self.log_file = config.log_file_path
-
-        # Credit to https://github.com/timvisee/apbf
-    def process_path(self, path):
-        # parse through paths in log_file and check if path is already in there before trying, if so, skip
-        with open(self.log_file, newline='') as f:
+    def __init__(self):
+        super().__init__()
+        self.stdout_normal = self.config.stdout_normal
+        self.stdout_success = self.config.stdout_success
+        self.stdout_error = self.config.stdout_error
+        self.attempt_delay = self.config.attempt_delay
+        self.log_file_path = self.config.log_file_path
+        self.attempted_paths = self.get_attempted_paths()
+    
+    def get_attempted_paths(self):
+        if not os.path.isfile(self.log_file_path):
+            with open(self.log_file_path, 'w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(['timestamp', 'path', 'result'])
+        attempted_paths = []
+        with open(self.log_file_path, newline='') as f:
             reader = csv.reader(f)
-            for row in reader:
-                if path == row[1]:
-                    print(f"Skipping path {path} because it was already tried.")
-                    return False
-        print(f"\nTrying path: {path} with length {len(path)}")
+            if csv.Sniffer().has_header(f.read(1024)):
+                f.seek(0) 
+                next(reader) 
+            try:
+                for row in reader:
+                    attempted_paths.append(row[1])
+            except StopIteration:
+                pass
+        if not attempted_paths:
+            self.path_handler_logger.warning('No attempted paths found in CSV file')
+        return tuple(attempted_paths)
+    
+    # Credit to https://github.com/timvisee/apbf
+    def handle_path(self, path) -> bool:
+        if path in self.attempted_paths:
+            self.path_handler_logger.info(f"Skipping path {path} because it was already tried.")
+            return False
+        self.path_handler_logger.info(f"Trying path: {path} with length {len(path)}")
 
         command = ["adb", "shell", "twrp", "decrypt", f"{path}"]
         try:
             result = subprocess.run(command, capture_output=True, text=True)
         except Exception as e:
-            print(f"failed to invoke decrypt command: {e}")
+            self.path_handler_logger.error(f"Failed to invoke decrypt command: {e}")
             sys.exit(1)
         
         #Parse output
-        print(f"Output: {result}")
+        self.path_handler_logger.info(f"Output: {result}")
         status = result.returncode
         stdout = result.stdout
         stderr = result.stderr
         stdout_replaced = stdout.replace('\n', '\\n')
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        # Write to CSV
-        with open('log.csv', 'a', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow([timestamp, path, stdout_replaced, stderr])
+        # Pass the response to the LogHandler
+        log_handler = LogHandler()
+        log_handler.handle_path(path, timestamp, result, stdout_replaced)
 
         # Check for success
         if status == 0 and stderr == "" and stdout in self.stdout_success:
-            print(f"\nSuccess! Here is the output for the decryption attempt: {path}")
+            self.path_handler_logger.info(f"\nSuccess! Here is the output for the decryption attempt: {path}")
             return True, None
 
         # Regular output, continue
         if status == 0 and stderr == "" and stdout == self.stdout_normal:
-            print(f"Path {path} was not successful.")
+            self.path_handler_logger.warning(f"Path {path} was not successful.")
             i = 0.1
             time_remaining = self.attempt_delay/1000
             while i <= time_remaining:
@@ -74,38 +94,42 @@ class ADBHandler(PathHandler):
             return False
 
         # Report and exit
-        print("An error occurred, here's the output for the decryption attempt:")
-        print(f"- status: {status}")
-        print(f"- stdout: {stdout}")
-        print(f"- stderr: {stderr}")
+        self.path_handler_logger.error("An error occurred, here's the output for the decryption attempt:")
+        self.path_handler_logger.error(f"- status: {status}")
+        self.path_handler_logger.error(f"- stdout: {stdout}")
+        self.path_handler_logger.error(f"- stderr: {stderr}")
         sys.exit(1)
 
-class DummyHandler(PathHandler):
-    def __init__(self, config):
-        self.config = config
-        self.counter = 0
+class TestHandler(PathHandler):
+    def __init__(self):
+        super().__init__()
+        self.test_path = self.config.test_path
 
-    def process_path(self, path):
-        #print(f"Found valid path: {path} with length {len(path)}")
-        #render_path(path)
-        #render_path_steps(path) 
-
-        if path == self.config.test_path:
-            print(f"\nSuccess! Here is the output for the decryption attempt: {path}")
-            sys.exit()
+    def handle_path(self, path) -> bool:
+        if path == self.test_path:
+            self.path_handler_logger.info(f"\n[TEST] Success! Here is the output for the decryption attempt: {path}")
             return True
         else:
-            self.counter += 1
-           # print(f"Path {path} was not successful.")
+            self.path_handler_logger.info(f"[TEST] Path {path} was not successful.")
             return False
 
 class PrintHandler(PathHandler):
-    def __init__(self, config):
-        self.config = config
-        self.counter = 0
+    def __init__(self):
+        super().__init__()
+        self.grid_size = self.config.grid_size
+    
+    def handle_path(self, path) -> bool:
+        path_rows = self.render_path(path)
+        steps_rows = self.render_path_steps(path)
+        # Print side-by-side
+        for path_row, steps_row in zip(path_rows, steps_rows):
+            self.path_handler_logger.info(f"{path_row}    {steps_row}")
+        self.path_handler_logger.info("")
+        return True
 
-    def render_path(path):
+    def render_path(self, path):
         rows = []
+        grid_size = grid_size
         # Create a path slug and print it
         slug = "-".join(str(p) for p in path)
 
@@ -120,8 +144,9 @@ class PrintHandler(PathHandler):
             rows.append("".join(row))
         return rows
 
-    def render_path_steps(path):
+    def render_path_steps(self, path):
         rows = []
+        grid_size = self.grid_size
         # Render the path steps
         for y in range(grid_size):
             row = []
@@ -134,22 +159,14 @@ class PrintHandler(PathHandler):
             rows.append(" ".join(row))
         return rows
     
-    def process_path(path):
-        path_rows = render_path(path)
-        steps_rows = render_path_steps(path)
-        # Print side-by-side
-        for path_row, steps_row in zip(path_rows, steps_rows):
-            print(f"{path_row}    {steps_row}")
-    
 class LogHandler(PathHandler):
-    def __init__(self, config):
-        self.config = config
-        self.adb_handler = ADBHandler(config)
+    def __init__(self):
+        super().__init__()
+        self.log_file_path = self.config.log_file_path
 
-    def process_path(self, path):
-        success, output = self.adb_handler.process_path(path)
+    def handle_path(self, path, response) -> bool:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        with open(self.config.log_file_path, 'a', newline='') as f:
+        with open(self.log_file_path, 'a', newline='') as f:
             writer = csv.writer(f)
-            writer.writerow([timestamp, path, success, output])
-        return success, output
+            writer.writerow([timestamp, path, response])
+        return True

@@ -16,8 +16,10 @@ class Config:
     stdout_normal: str = ''
     stdout_success: str = ''
     stdout_error: str = ''
-    log_file_path: str = ''
+    paths_log_file_path: str = ''
+    process_log_file_path: str = ''
     debug: bool = False
+    adb_timeout: int = 30
         
     @classmethod
     def load_config(cls, config_file_path: str) -> 'Config':
@@ -42,8 +44,10 @@ class Config:
             stdout_normal=config_data.get('outputstrings', {}).get('stdout_normal', ''),
             stdout_success=config_data.get('outputstrings', {}).get('stdout_success', ''),
             stdout_error=config_data.get('outputstrings', {}).get('stdout_error', ''),
-            log_file_path=config_data.get('log_file_path', ''),
-            debug=config_data.get('debug', False)
+            paths_log_file_path=config_data.get('paths_log_file_path', ''),
+            process_log_file_path=config_data.get('process_log_file_path', ''),
+            debug=config_data.get('debug', False),
+            adb_timeout = config_data.get('adb_timeout', 30)
         )
 
 def __repr__(self) -> str:

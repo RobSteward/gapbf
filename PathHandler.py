@@ -7,7 +7,7 @@ import csv
 import logging
 from datetime import datetime
 from Config import Config
-from Logging import get_logger  # Import get_logger
+from Logging import get_logger
 
 
 class PathHandler(ABC):
@@ -44,26 +44,29 @@ class ADBHandler(PathHandler):
         """
         Retrieve paths that have already been attempted.
         """
+        attempted_paths = []
         if not os.path.isfile(self.paths_log_file_path):
+            self.logger.debug(f"Creating paths log file at {self.paths_log_file_path}")
             with open(self.paths_log_file_path, 'w', newline='') as f:
                 writer = csv.writer(f)
                 writer.writerow(['timestamp', 'path', 'result'])
-        attempted_paths = []
-        with open(self.paths_log_file_path, newline='') as f:
-            reader = csv.reader(f)
-            if csv.Sniffer().has_header(f.read(1024)):
-                f.seek(0) 
-                next(reader) 
-            try:
-                for row in reader:
-                    if len(row) >= 2:  # Ensure at least two columns are present
-                        attempted_paths.append(row[1])
-                    else:
-                        self.logger.warning('Malformed row in CSV file. Skipping.')
-            except StopIteration:
-                pass
-        if not attempted_paths:
-            self.logger.warning('No attempted paths found in CSV file')
+        else:
+            self.logger.debug(f"Found existing paths log file at {self.paths_log_file_path}")
+            with open(self.paths_log_file_path, newline='') as f:
+                reader = csv.reader(f)
+                if csv.Sniffer().has_header(f.read(1024)):
+                    f.seek(0) 
+                    next(reader) 
+                try:
+                    for row in reader:
+                        if len(row) >= 2:  # Ensure at least two columns are present
+                            attempted_paths.append(row[1])
+                        else:
+                            self.logger.warning('Malformed row in CSV file. Skipping.')
+                except StopIteration:
+                    self.logger.warning('No attempted paths found in CSV file')
+            if not attempted_paths:
+                self.logger.warning('No attempted paths found in CSV file')
         return tuple(attempted_paths)
     
     # Credit to https://github.com/timvisee/apbf
@@ -96,7 +99,7 @@ class ADBHandler(PathHandler):
 
         # Pass the response to the LogHandler
         log_handler = LogHandler()
-        log_handler.handle_path(path, timestamp, result, stdout_replaced)
+        log_handler.handle_path(timestamp, path, result, stdout_replaced)
 
         # Check for success
         if status == 0 and stderr == "" and stdout in self.stdout_success:
@@ -196,11 +199,11 @@ class LogHandler(PathHandler):
     """
     def __init__(self):
         super().__init__()
-        self.log_file_path = self.config.log_file_path
+        self.paths_log_file_path = self.config.paths_log_file_path
 
-    def handle_path(self, path, response) -> bool:
+    def handle_path(self, timestamp, path, response, info) -> bool:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        with open(self.log_file_path, 'a', newline='') as f:
+        with open(self.paths_log_file_path, 'a', newline='') as f:
             writer = csv.writer(f)
-            writer.writerow([timestamp, path, response])
+            writer.writerow([timestamp, path, response, info])
         return True

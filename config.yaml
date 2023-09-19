@@ -1,12 +1,11 @@
 paths_log_file_path: "./paths_log.csv"
 process_log_file_path: "./process_log.csv"
-grid_size: 5
-path_min_length: 4
-path_max_length: 4
+grid_size: 4
+path_min_length: 3
+path_max_length: 5
 path_prefix:
   - 1
-path_suffix:  
-  - 4
+path_suffix:
 excluded_nodes:
   - 2
 test_path:
@@ -14,6 +13,7 @@ test_path:
   - 7 
   - 8
   - 4
+  - 9
 attempt_delay: 10100
 outputstrings:
   stdout_normal: >

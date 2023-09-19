@@ -160,7 +160,11 @@ class PathFinder:
         Count the number of possible paths based on the given configuration.
         """
         visited = set(self._path_prefix)
-        path_suffix = set(map(int, self._path_suffix))
+        # set path_suffix to self._path_suffix, if not empty, else set to empty set
+        if self._path_suffix:
+            path_suffix = set(map(int, self._path_suffix))
+        else:
+            path_suffix = set()
         total_paths = 0
 
         def dfs_counter(node: Union[int, str], path: List[Union[int, str]]) -> None:
@@ -196,7 +200,10 @@ class PathFinder:
         Depth-first search recursive traversal of the graph.
         """
         visited = set(self._path_prefix)
-        path_suffix = set(map(int, self._path_suffix))  # Convert once
+        if self._path_suffix:
+            path_suffix = set(map(int, self._path_suffix)) 
+        else:
+            path_suffix = set()
 
         def dfs_helper(node: Union[int, str], path: List[Union[int, str]]) -> None:
             path = list(path)

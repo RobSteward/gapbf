@@ -147,10 +147,13 @@ In the config.yaml file you can tweak a few constants for:
 * ~~Implement testing framework (pytest)~~
 * ~~Write tests (~~unit test~~, integration test)~~
 * Order handlers (ADB, iOS, Render, Test, Log)
+* Fix logging to file from ADB handler)
+* Fix PrintHandler not showing correct path
+* Fix dfs not respecting config min/max path length and excluding nodes, and path prefix/suffix
 * Improve error handling
-* Add documentation
+* ~~Add documentation~~
 * Verify tests
-* Make config loading consistent and efficient (config object, class assignment, vs direct loading)
+* ~~Make config loading consistent and efficient (config object, class assignment, vs direct loading)~~
 
 ## License
 This project is released under the GNU GPL-3.0 license.

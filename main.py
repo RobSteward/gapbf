@@ -6,7 +6,7 @@ from PathFinder import PathFinder
 from PathHandler import ADBHandler, PrintHandler, TestHandler, LogHandler #, iOSHandler
 
 config = Config.load_config('config.yaml')
-path_finder = PathFinder(config.grid_size, config.path_min_length, config.path_max_length, config.path_prefix, config.path_suffix, config.excluded_nodes, config.debug)
+path_finder = PathFinder(config.grid_size, config.path_min_length, config.path_max_length, config.path_prefix, config.path_suffix, config.excluded_nodes)
 
 def validate_mode(value):
     valid_modes = set('apt')

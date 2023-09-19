@@ -18,7 +18,6 @@ class Config:
     stdout_error: str = ''
     paths_log_file_path: str = ''
     process_log_file_path: str = ''
-    debug: bool = False
     adb_timeout: int = 30
         
     @classmethod
@@ -46,7 +45,6 @@ class Config:
             stdout_error=config_data.get('outputstrings', {}).get('stdout_error', ''),
             paths_log_file_path=config_data.get('paths_log_file_path', ''),
             process_log_file_path=config_data.get('process_log_file_path', ''),
-            debug=config_data.get('debug', False),
             adb_timeout = config_data.get('adb_timeout', 30)
         )
 

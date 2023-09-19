@@ -22,11 +22,12 @@ class Logger:
         
         return cls._instance
 
-def get_logger(calling_function=None, log_level='error'):
+def get_logger(calling_function=None, log_level='critical'):
     logger = logging.getLogger(calling_function)
     
     # Define a mapping from string values to corresponding logging levels
     log_level_mapping = {
+        'critical': logging.CRITICAL,
         'error': logging.ERROR,
         'warning': logging.WARNING,
         'debug': logging.DEBUG,

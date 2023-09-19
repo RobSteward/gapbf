@@ -116,9 +116,8 @@ class PathFinder:
             },
         }
 
-    def __init__(self, grid_size: int, path_min_len: int = 4, path_max_len: int = 36, path_prefix: List[Union[int, str]] = [], path_suffix: Set[Union[int, str]] = [], excluded_nodes: Set[Union[int, str]] = [], debug = False):
-        self.path_finder_logger = logging.getLogger(__name__)
-        self.path_finder_logger.setLevel(logging.DEBUG)
+    def __init__(self, grid_size: int, path_min_len: int = 4, path_max_len: int = 36, path_prefix: List[Union[int, str]] = [], path_suffix: Set[Union[int, str]] = [], excluded_nodes: Set[Union[int, str]] = []):
+        self.logger = logging.getLogger('main')
         if grid_size not in self.graphs:
             raise ValueError(f'Invalid grid_size: {grid_size}. Available sizes are: {list(self.graphs.keys())}')
         self.grid_size = grid_size
@@ -132,9 +131,7 @@ class PathFinder:
         self._path_prefix = path_prefix
         self._path_suffix = path_suffix
         self._excluded_nodes = excluded_nodes
-        self.debug = debug
-        if self.debug:
-            self.path_finder_logger.debug(f"Type of self.graphs: {type(self.graphs)}, Value: {self.graphs}")
+        self.logger.debug(f"Type of self.graphs: {type(self.graphs)}, Value: {self.graphs}")
     
     @property
     def handlers(self):
@@ -208,8 +205,7 @@ class PathFinder:
 
             if len(path) >= self._path_min_len:
                 if path[-1] in path_suffix or not path_suffix:
-                    if self.debug:
-                        self.path_finder_logger.info(f"Debug: Found valid path: {path} with length {len(path)}")
+                    self.logger.info(f"Debug: Found valid path: {path} with length {len(path)}")
                     for handler in self.handlers:
                         handler.handle_path(path)
 

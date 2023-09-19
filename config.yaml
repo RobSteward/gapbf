@@ -1,5 +1,5 @@
-paths_log_file_path: "./path_log.csv"
-process_log_file_path: "./proess_log.csv"
+paths_log_file_path: "./paths_log.csv"
+process_log_file_path: "./process_log.csv"
 grid_size: 5
 path_min_length: 4
 path_max_length: 4
@@ -22,5 +22,4 @@ outputstrings:
     Failed to decrypt user 0
   stdout_success: Data successfully decrypted  
   stdout_error: some_error_string
-debug: true
 adb_timeout: 30

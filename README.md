@@ -94,6 +94,11 @@ My *assumption* is that the 6x6 grid looks like this:
   cd gapbf
   ```
 
+- Install required modules
+  ```bash
+  pip3 install PyYAML
+```
+
 - Tweak properties in [`config.yaml`](./config.yaml):
   ```bash
   # Edit configuration

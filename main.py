@@ -8,15 +8,23 @@ from PathHandler import ADBHandler, PrintHandler, TestHandler, LogHandler #, iOS
 config = Config.load_config('config.yaml')
 path_finder = PathFinder(config.grid_size, config.path_min_length, config.path_max_length, config.path_prefix, config.path_suffix, config.excluded_nodes)
 
+# Print the loaded config
+print("Loaded Config:")
+print(config)
+
 def validate_mode(value):
-    valid_modes = set('apt')
-    if not set(value).issubset(valid_modes):
-        raise argparse.ArgumentTypeError(f"Invalid mode: {value}. Allowed values are combinations of 'a', 'p', and 't'.")
+    # Extract valid modes from the handler_classes keys
+    valid_modes = ''.join(handler_classes.keys())
+    if not set(value).issubset(set(valid_modes)):
+        # Create a string of available options
+        available_options = ', '.join(valid_modes)
+        raise argparse.ArgumentTypeError(
+            f"Invalid mode: {value}. Allowed values are combinations of {available_options}.")
     return value
-  
- 
+
 if __name__ == "__main__":    
-    parser = argparse.ArgumentParser(description='Please configure applicable handlers. Example: python main.py -m ap -l w')
+    parser = argparse.ArgumentParser(
+        description='Please configure applicable handlers. Example: python3 main.py -m ap -l w')
     
     handler_classes = {
     'a': {'class': ADBHandler, 'help': 'Attempt decryption via ADB shell on Android device'},
@@ -35,7 +43,15 @@ if __name__ == "__main__":
     parser.add_argument('-l', '--logging', choices=['error', 'warning', 'debug', 'info'], default='error', help='Set logging level: e for error, w for warnings, d for debug, i for info. Critical errors will always be shown. Default is \'error\'')
     parser.add_argument('--file', action='store_true', default=False, help='Enable logging to file')
 
-    args = parser.parse_args()
+    try:
+        args = parser.parse_args()
+    except SystemExit:
+        # Extract the valid modes as a string
+        valid_modes = ', '.join(handler_classes.keys())
+        # print(
+        #    f"Error: Missing required '-m/--mode' argument. Allowed values are combinations of: {valid_modes}.")
+        parser.print_help()  # Print the default help message
+        sys.exit(1)
 
     logger = get_logger('main', log_level=args.logging)
 

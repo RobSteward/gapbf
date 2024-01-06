@@ -132,16 +132,28 @@ class TestHandler(PathHandler):
     def __init__(self):
         super().__init__()
         self.test_path = self.config.test_path
+        print(f"[TEST] [CONFIGURATION] Grid size is {self.config.grid_size}")
+        print(
+            f"[TEST] [CONFIGURATION] Path max node distance is {self.config.path_max_node_distance}")
+        print(
+            f"[TEST] [CONFIGURATION] Path prefix is {self.config.path_prefix}")
+        print(
+            f"[TEST] [CONFIGURATION] Path suffix is {self.config.path_suffix}")
+        print(
+            f"[TEST] [CONFIGURATION] Path excluded nodes are {self.config.excluded_nodes}")
+        print(f"[TEST] [CONFIGURATION] Test path is {self.test_path}")
+        print(
+            f"[TEST] [CONFIGURATION] Test path length is {len(self.test_path)}")
 
     def handle_path(self, path) -> bool:
         self.logger.debug(f"Received path {path}")
             
         if path == self.test_path:
             print(f"\n[TEST] Success! Here is the output for the decryption attempt: {path}")
-            return True
+            return True, path
         else:
             print(f"[TEST] Testing path {path} against {self.test_path} was not successful.")
-            return False
+            return False, None
 
 class PrintHandler(PathHandler):
     """
@@ -159,7 +171,7 @@ class PrintHandler(PathHandler):
         for path_row, steps_row in zip(path_rows, steps_rows):
             print(f"{path_row}    {steps_row}")
         print("")
-        return True
+        return False, None
 
     def render_path(self, path):
         rows = []

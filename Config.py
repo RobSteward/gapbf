@@ -1,6 +1,6 @@
 import yaml
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Union, Set
 
 @dataclass
 class Config:
@@ -8,11 +8,12 @@ class Config:
     grid_size: int = 0
     path_min_length: int = 0
     path_max_length: int = 0
-    path_prefix: str = ''
-    path_suffix: str = ''
-    excluded_nodes: List[str] = field(default_factory=list)
+    path_max_node_distance: int = 0
+    path_prefix: List[Union[int, str]] = field(default_factory=list)
+    path_suffix: List[Union[int, str]] = field(default_factory=list)
+    excluded_nodes: List[Union[int, str]] = field(default_factory=list)
     attempt_delay: float = 0.0
-    test_path: str = ''
+    test_path: List[Union[int, str]] = field(default_factory=list)
     stdout_normal: str = ''
     stdout_success: str = ''
     stdout_error: str = ''
@@ -35,8 +36,10 @@ class Config:
             grid_size=config_data.get('grid_size', 0),
             path_min_length=config_data.get('path_min_length', 0),
             path_max_length=config_data.get('path_max_length', 0),
-            path_prefix=config_data.get('path_prefix', ''),
-            path_suffix=config_data.get('path_suffix', ''),
+            path_max_node_distance=config_data.get(
+                'path_max_node_distance', 0),
+            path_prefix=config_data.get('path_prefix', []),
+            path_suffix=config_data.get('path_suffix', []),
             excluded_nodes=config_data.get('excluded_nodes', []),
             attempt_delay=config_data.get('attempt_delay', 0.0),
             test_path=config_data.get('test_path', ''),

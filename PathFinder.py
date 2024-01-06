@@ -116,7 +116,7 @@ class PathFinder:
             },
         }
 
-    def __init__(self, grid_size: int, path_min_len: int = 4, path_max_len: int = 36, path_prefix: List[Union[int, str]] = [], path_suffix: Set[Union[int, str]] = [], excluded_nodes: Set[Union[int, str]] = []):
+    def __init__(self, grid_size: int, path_min_len: int = 4, path_max_len: int = 36, path_node_max_distance: int = 1, path_prefix: List[Union[int, str]] = [], path_suffix: Set[Union[int, str]] = [], excluded_nodes: Set[Union[int, str]] = []):
         self.logger = logging.getLogger('main')
         if grid_size not in self.graphs:
             raise ValueError(f'Invalid grid_size: {grid_size}. Available sizes are: {list(self.graphs.keys())}')
@@ -128,8 +128,11 @@ class PathFinder:
         self._total_paths = None
         self._path_min_len = path_min_len
         self._path_max_len = path_max_len
-        self._path_prefix = path_prefix
+        self._path_node_max_distance = path_node_max_distance
+        self._path_prefix = set(path_prefix)
+        self.logger.debug(f"_path_prefix value: {self._path_prefix}")
         self._path_suffix = path_suffix
+        self.logger.debug(f"_path_suffix value: {self._path_suffix}")
         self._excluded_nodes = excluded_nodes
         self.logger.debug(f"Type of self.graphs: {type(self.graphs)}, Value: {self.graphs}")
     
@@ -199,11 +202,19 @@ class PathFinder:
         """
         Depth-first search recursive traversal of the graph.
         """
+        total_paths_to_test = self.total_paths  # This will call _calculate_total_paths if it hasn't been called before
+        self.logger.info(
+            f"Total number of paths to be tested: {total_paths_to_test}")
         visited = set(self._path_prefix)
         if self._path_suffix:
             path_suffix = set(map(int, self._path_suffix)) 
         else:
             path_suffix = set()
+
+        def calculate_node_distance(node1, node2):
+            distance = 0
+
+            return distance
 
         def dfs_helper(node: Union[int, str], path: List[Union[int, str]]) -> None:
             path = list(path)
@@ -214,19 +225,25 @@ class PathFinder:
                 if path[-1] in path_suffix or not path_suffix:
                     self.logger.info(f"Debug: Found valid path: {path} with length {len(path)}")
                     for handler in self.handlers:
-                        handler.handle_path(path)
+                        success, _ = handler.handle_path(path)
+                        if success:
+                            return True
 
             if len(path) < self._path_max_len:
                 for neighbor in self.neighbors[str(node)]:
                     if neighbor not in self._excluded_nodes and neighbor not in visited:
-                        dfs_helper(neighbor, path)
+                        distance = calculate_node_distance(node, neighbor)
+                        # Proceed with DFS only if the distance is within the allowed maximum
+                        if distance <= self.path_max_node_distance:
+                            if dfs_helper(neighbor, path):
+                                return True
 
             path.pop()
             visited.remove(node)
 
         if not self._path_prefix:
             for node in self.graph:
-                if node not in visited:
-                    dfs_helper(node, self._path_prefix)
+                if dfs_helper(node, []):
+                    break
         else:
             dfs_helper(self._path_prefix[-1], self._path_prefix[:-1])

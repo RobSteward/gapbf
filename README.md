@@ -50,7 +50,7 @@ It looks like this:
 ]
 ```
 
-This grid is based on the [note on TWRP decrypt pattern](https://twrp.me/faq/openrecoveryscript.html) and more information here at these two links (https://blog.alxu.ca/unlocking-large-pattern-encryption-in-twrp.html) and (https://github.com/TeamWin/Team-Win-Recovery-Project/blob/android-6.0/gui/patternpassword.cpp#L417)
+This grid is based on the [note on TWRP decrypt pattern](https://twrp.me/faq/openrecoveryscript.html) and more information here at these two links [from Alex Xu's blog](https://blog.alxu.ca/unlocking-large-pattern-encryption-in-twrp.html) and [the TWRP code base](https://github.com/TeamWin/Team-Win-Recovery-Project/blob/android-6.0/gui/patternpassword.cpp#L417)
 
 The 4x4 grid looks like this:
 ```

@@ -10,7 +10,7 @@ I succeeded to crack my 5x5 pattern in about XX.XX hours (at the time of writing
 - A pattern lock
 - Android 8.0 (Nougat) or above
 - [TWRP][twrp] recovery
-- [`adb`][adb] (with connectivity to phone in TWRP)
+- [`adb`][adb](https://developer.android.com/tools/releases/platform-tools) (with connectivity to phone in TWRP)
 - [`git`][git]
 - [`python`](https://www.python.org/) v3.11.4 or higher
 

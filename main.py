@@ -6,11 +6,8 @@ from PathFinder import PathFinder
 from PathHandler import ADBHandler, PrintHandler, TestHandler, LogHandler #, iOSHandler
 
 config = Config.load_config('config.yaml')
-path_finder = PathFinder(config.grid_size, config.path_min_length, config.path_max_length, config.path_prefix, config.path_suffix, config.excluded_nodes)
-
-# Print the loaded config
-print("Loaded Config:")
-print(config)
+path_finder = PathFinder(config.grid_size, config.path_min_length, config.path_max_length,
+                         config.path_max_node_distance, config.path_prefix, config.path_suffix, config.excluded_nodes)
 
 def validate_mode(value):
     # Extract valid modes from the handler_classes keys
@@ -54,17 +51,23 @@ if __name__ == "__main__":
         sys.exit(1)
 
     logger = get_logger('main', log_level=args.logging)
+    modes = args.mode
 
-    for arg, handler_info in handler_classes.items():
-        if arg in args.mode:  # Changed from getattr(args, arg)
+    for mode in modes:
+        if mode in handler_classes:
+            handler_info = handler_classes[mode]
             handler_class = handler_info['class']
             handler = handler_class()
             path_finder.add_handler(handler)
+        else:
+            print(
+                f"Warning: Mode '{mode}' is not recognized and will be ignored.")
 
-    logger.info(f" Starting main.py with config: {config}")
-    logger.info(f" Calculating possible paths...")
+    # print(f" Starting main.py with config: {config}")
+    print(f" Calculating possible paths...")
     possible_paths = path_finder.total_paths
     handler_names_str = ', '.join([handler_info['class'].__name__ for arg, handler_info in handler_classes.items() if arg in args.mode])
-    logger.info(f" Completed possible path calculation. Attempting brute force with {possible_paths} possible paths via {handler_names_str}.")
+    print(
+        f" Completed possible path calculation. Attempting brute force with {possible_paths} possible paths via {handler_names_str}.")
     result = path_finder.dfs()    
-    logger.info(f" Reached end of paths to try. Exiting.")
+    print(f" Reached end of paths to try. Exiting.")

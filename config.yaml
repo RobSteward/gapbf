@@ -2,24 +2,14 @@ paths_log_file_path: "./paths_log.csv"
 process_log_file_path: "./process_log.csv"
 grid_size: 3
 path_min_length: 3
-path_max_length: 4
+path_max_length: 9
 path_max_node_distance: 1
-path_prefix:
-  - 1
-path_suffix:
-excluded_nodes:
-  - 2
-test_path:
-  - 1
-  - 5
-  - 8
-  - 9
+path_prefix: []
+path_suffix: []
+excluded_nodes: []
+test_path: []
 attempt_delay: 10100
 outputstrings:
-  stdout_normal: >
-    Attempting to decrypt data partition or user data via command line.
-    Attempting to decrypt FBE for user 0...
-    Failed to decrypt user 0
-  stdout_success: Data successfully decrypted  
+  stdout_normal: "Attempting to decrypt data partition or user data via command line.\nFailed to decrypt data.\n"
   stdout_error: some_error_string
 adb_timeout: 30

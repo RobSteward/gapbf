@@ -116,7 +116,7 @@ class PathFinder:
             },
         }
 
-    def __init__(self, grid_size: int, path_min_len: int = 4, path_max_len: int = 36, path_node_max_distance: int = 1, path_prefix: List[Union[int, str]] = [], path_suffix: Set[Union[int, str]] = [], excluded_nodes: Set[Union[int, str]] = []):
+    def __init__(self, grid_size: int, path_min_len: int = 4, path_max_len: int = 36, path_max_node_distance: int = 1, path_prefix: List[Union[int, str]] = [], path_suffix: Set[Union[int, str]] = [], excluded_nodes: Set[Union[int, str]] = []):
         self.logger = logging.getLogger('main')
         if grid_size not in self.graphs:
             raise ValueError(f'Invalid grid_size: {grid_size}. Available sizes are: {list(self.graphs.keys())}')
@@ -128,7 +128,7 @@ class PathFinder:
         self._total_paths = None
         self._path_min_len = path_min_len
         self._path_max_len = path_max_len
-        self._path_node_max_distance = path_node_max_distance
+        self._path_max_node_distance = path_max_node_distance
         self._path_prefix = set(path_prefix)
         self.logger.debug(f"_path_prefix value: {self._path_prefix}")
         self._path_suffix = path_suffix
@@ -203,8 +203,7 @@ class PathFinder:
         Depth-first search recursive traversal of the graph.
         """
         total_paths_to_test = self.total_paths  # This will call _calculate_total_paths if it hasn't been called before
-        self.logger.info(
-            f"Total number of paths to be tested: {total_paths_to_test}")
+        # print(f"Total number of paths to be tested: {total_paths_to_test}")
         visited = set(self._path_prefix)
         if self._path_suffix:
             path_suffix = set(map(int, self._path_suffix)) 
@@ -221,8 +220,11 @@ class PathFinder:
             path.append(node)
             visited.add(node)
 
+
+
             if len(path) >= self._path_min_len:
                 if path[-1] in path_suffix or not path_suffix:
+                    # print(f"Currently handling path: {path}")
                     self.logger.info(f"Debug: Found valid path: {path} with length {len(path)}")
                     for handler in self.handlers:
                         success, _ = handler.handle_path(path)
@@ -234,7 +236,7 @@ class PathFinder:
                     if neighbor not in self._excluded_nodes and neighbor not in visited:
                         distance = calculate_node_distance(node, neighbor)
                         # Proceed with DFS only if the distance is within the allowed maximum
-                        if distance <= self.path_max_node_distance:
+                        if distance <= self._path_max_node_distance:
                             if dfs_helper(neighbor, path):
                                 return True
 

@@ -5,6 +5,7 @@ import time
 import os
 import csv
 import logging
+from typing import Optional
 from datetime import datetime
 from Config import Config
 from Logging import get_logger
@@ -70,7 +71,7 @@ class ADBHandler(PathHandler):
         return tuple(attempted_paths)
     
     # Credit to https://github.com/timvisee/apbf
-    def handle_path(self, path) -> bool:
+    def handle_path(self, path) -> (bool, Optional[str]):
         """
         Attempts to decrypt using the given path.
         """
@@ -78,19 +79,22 @@ class ADBHandler(PathHandler):
             self.logger.info(f"Skipping path {path} because it was already tried.")
             return False
         self.logger.info(f"Trying path: {path} with length {len(path)}")
-
-        command = ["adb", "shell", "twrp", "decrypt", f"{path}"]
+        formatted_path = ''.join(map(str, path))
+        command = ["adb", "shell", "twrp", "decrypt", formatted_path]
+        # print("Sending command: ", command)
         try:
             result = subprocess.run(command, capture_output=True, text=True, timeout=self.timeout)
         except subprocess.TimeoutExpired as e:
-            self.logger.error(f"Subprocess timed out: {e}")
+            # self.logger.error(f"Subprocess timed out: {e}")
+            print(f"Subprocess timed out: {e}")
             sys.exit(1)
         except Exception as e:
-            self.logger.error(f"Failed to invoke decrypt command: {e}")
+            # self.logger.error(f"Failed to invoke decrypt command: {e}")
+            print(f"Failed to invoke decrypt command: {e}")
             sys.exit(1)
         
         #Parse output
-        self.logger.info(f"Output: {result}")
+        # print(f"Output: {result}")
         status = result.returncode
         stdout = result.stdout
         stderr = result.stderr
@@ -104,11 +108,11 @@ class ADBHandler(PathHandler):
         # Check for success
         if status == 0 and stderr == "" and stdout in self.stdout_success:
             self.logger.info(f"\nSuccess! Here is the output for the decryption attempt: {path}")
-            return True, None
+            return (True, path)
 
         # Regular output, continue
         if status == 0 and stderr == "" and stdout == self.stdout_normal:
-            self.logger.warning(f"Path {path} was not successful.")
+            print(f"Path {path} was not successful.")
             i = 0.1
             time_remaining = self.attempt_delay/1000
             while i <= time_remaining:
@@ -116,14 +120,15 @@ class ADBHandler(PathHandler):
                 time_remaining = time_remaining - i
                 sys.stdout.write(f'\rContinuing in: {time_remaining:.1f} seconds  ')
                 sys.stdout.flush()  # necessary for the line to be printed immediately
-            return False
+            return (False, None)
 
         # Report and exit
+        print("Should not get here")
         self.logger.error("An error occurred, here's the output for the decryption attempt:")
         self.logger.error(f"- status: {status}")
         self.logger.error(f"- stdout: {stdout}")
         self.logger.error(f"- stderr: {stderr}")
-        sys.exit(1)
+        return False
 
 class TestHandler(PathHandler):
     """
@@ -183,7 +188,7 @@ class PrintHandler(PathHandler):
         for y in range(grid_size):
             row = []
             for x in range(grid_size):
-                if y * grid_size + x in path:
+                if y * grid_size + x + 1 in path:
                     row.append("●")
                 else:
                     row.append("○")
@@ -197,7 +202,7 @@ class PrintHandler(PathHandler):
         for y in range(grid_size):
             row = []
             for x in range(grid_size):
-                value = y * grid_size + x
+                value = y * grid_size + x + 1
                 if value in path:
                     row.append(f"{path.index(value) + 1}")
                 else:

@@ -1,5 +1,5 @@
 import yaml
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from typing import List, Union, Set
 
 @dataclass
@@ -8,7 +8,7 @@ class Config:
     grid_size: int = 0
     path_min_length: int = 0
     path_max_length: int = 0
-    path_max_node_distance: int = 0
+    path_max_node_distance: int = 1
     path_prefix: List[Union[int, str]] = field(default_factory=list)
     path_suffix: List[Union[int, str]] = field(default_factory=list)
     excluded_nodes: List[Union[int, str]] = field(default_factory=list)
@@ -20,7 +20,57 @@ class Config:
     paths_log_file_path: str = ''
     process_log_file_path: str = ''
     adb_timeout: int = 30
-        
+
+    def __post_init__(self):
+        if not isinstance(self.config_file_path, str):
+            raise TypeError(
+                f"config_file_path must be a string, got {type(self.config_file_path).__name__}")
+        if not isinstance(self.grid_size, int):
+            raise TypeError(
+                f"grid_size must be an integer, got {type(self.grid_size).__name__}")
+        if not isinstance(self.path_min_length, int):
+            raise TypeError(
+                f"path_min_length must be an integer, got {type(self.path_min_length).__name__}")
+        if not isinstance(self.path_max_length, int):
+            raise TypeError(
+                f"path_max_length must be an integer, got {type(self.path_max_length).__name__}")
+        if not isinstance(self.path_max_node_distance, int):
+            raise TypeError(
+                f"path_max_node_distance must be an integer, got {type(self.path_max_node_distance).__name__}")
+        if not all(isinstance(item, (int, str)) for item in self.path_prefix):
+            raise TypeError(
+                "All items in path_prefix must be either integer or string")
+        if not all(isinstance(item, (int, str)) for item in self.path_suffix):
+            raise TypeError(
+                "All items in path_suffix must be either integer or string")
+        if not all(isinstance(item, (int, str)) for item in self.excluded_nodes):
+            raise TypeError(
+                "All items in excluded_nodes must be either integer or string")
+        if not isinstance(self.attempt_delay, float):
+            raise TypeError(
+                f"attempt_delay must be a float, got {type(self.attempt_delay).__name__}")
+        if not all(isinstance(item, (int, str)) for item in self.test_path):
+            raise TypeError(
+                "All items in test_path must be either integer or string")
+        if not isinstance(self.stdout_normal, str):
+            raise TypeError(
+                f"stdout_normal must be a string, got {type(self.stdout_normal).__name__}")
+        if not isinstance(self.stdout_success, str):
+            raise TypeError(
+                f"stdout_success must be a string, got {type(self.stdout_success).__name__}")
+        if not isinstance(self.stdout_error, str):
+            raise TypeError(
+                f"stdout_error must be a string, got {type(self.stdout_error).__name__}")
+        if not isinstance(self.paths_log_file_path, str):
+            raise TypeError(
+                f"paths_log_file_path must be a string, got {type(self.paths_log_file_path).__name__}")
+        if not isinstance(self.process_log_file_path, str):
+            raise TypeError(
+                f"process_log_file_path must be a string, got {type(self.process_log_file_path).__name__}")
+        if not isinstance(self.adb_timeout, int):
+            raise TypeError(
+                f"adb_timeout must be an integer, got {type(self.adb_timeout).__name__}")
+
     @classmethod
     def load_config(cls, config_file_path: str) -> 'Config':
         try:
@@ -31,25 +81,32 @@ class Config:
         except yaml.YAMLError:
             raise ValueError(f"Invalid YAML format in configuration file: {config_file_path}")
 
-        return cls(
-            config_file_path=config_file_path,
-            grid_size=config_data.get('grid_size', 0),
-            path_min_length=config_data.get('path_min_length', 0),
-            path_max_length=config_data.get('path_max_length', 0),
-            path_max_node_distance=config_data.get(
-                'path_max_node_distance', 0),
-            path_prefix=config_data.get('path_prefix', []),
-            path_suffix=config_data.get('path_suffix', []),
-            excluded_nodes=config_data.get('excluded_nodes', []),
-            attempt_delay=config_data.get('attempt_delay', 0.0),
-            test_path=config_data.get('test_path', ''),
-            stdout_normal=config_data.get('outputstrings', {}).get('stdout_normal', ''),
-            stdout_success=config_data.get('outputstrings', {}).get('stdout_success', ''),
-            stdout_error=config_data.get('outputstrings', {}).get('stdout_error', ''),
-            paths_log_file_path=config_data.get('paths_log_file_path', ''),
-            process_log_file_path=config_data.get('process_log_file_path', ''),
-            adb_timeout = config_data.get('adb_timeout', 30)
+        loaded_config = cls(
+            config_file_path=str(config_file_path),
+            grid_size=int(config_data.get('grid_size', 0)),
+            path_min_length=int(config_data.get('path_min_length', 0)),
+            path_max_length=int(config_data.get('path_max_length', 0)),
+            path_max_node_distance=int(
+                config_data.get('path_max_node_distance', 1)),
+            path_prefix=list(config_data.get('path_prefix', [])),
+            path_suffix=list(config_data.get('path_suffix', [])),
+            excluded_nodes=list(config_data.get('excluded_nodes', [])),
+            attempt_delay=float(config_data.get('attempt_delay', 0.0)),
+            test_path=list(config_data.get('test_path', [])),
+            stdout_normal=str(config_data.get(
+                'outputstrings', {}).get('stdout_normal', '')),
+            stdout_success=str(config_data.get(
+                'outputstrings', {}).get('stdout_success', '')),
+            stdout_error=str(config_data.get(
+                'outputstrings', {}).get('stdout_error', '')),
+            paths_log_file_path=str(
+                config_data.get('paths_log_file_path', '')),
+            process_log_file_path=str(
+                config_data.get('process_log_file_path', '')),
+            adb_timeout=int(config_data.get('adb_timeout', 30))
         )
+        return loaded_config
+
 
 def __repr__(self) -> str:
     return f"Config({self.config_file_path})"

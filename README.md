@@ -40,7 +40,9 @@ In the [`config.yaml`](./config.yaml) file you can tweak a few constants for:
 
 ### Grid size 
 The grid size is defined by the number of nodes in the grid. As of writing Android supports 3, 4, 5, and 6 sides grids. The default is 3.
-Each grid is repesented by a list of lists. The first list is the top row, the second list is the middle row, and the third list is the bottom row. The nodes are numbered from left to right, top to bottom starting at 0. The default grid is a 3x3 grid with nodes 1-9.
+Each grid is repesented by a list of lists. The first list is the top row, the second list is the middle row, and the third list is the bottom row. The nodes are numbered from left to right, top to bottom starting at 1.
+This grid is based on the [note on TWRP decrypt pattern](https://twrp.me/faq/openrecoveryscript.html) and more information here [from Alex Xu's blog](https://blog.alxu.ca/unlocking-large-pattern-encryption-in-twrp.html) and [the TWRP code base](https://github.com/TeamWin/Team-Win-Recovery-Project/blob/android-6.0/gui/patternpassword.cpp#L417)The default grid is a 3x3 grid with nodes 1-9.
+
 It looks like this:
 ```
 [
@@ -50,7 +52,7 @@ It looks like this:
 ]
 ```
 
-This grid is based on the [note on TWRP decrypt pattern](https://twrp.me/faq/openrecoveryscript.html) and more information here [from Alex Xu's blog](https://blog.alxu.ca/unlocking-large-pattern-encryption-in-twrp.html) and [the TWRP code base](https://github.com/TeamWin/Team-Win-Recovery-Project/blob/android-6.0/gui/patternpassword.cpp#L417)
+
 
 The 4x4 grid looks like this:
 ```

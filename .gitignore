@@ -7,3 +7,6 @@ process_log.csv
 
 # If your logs are in a specific directory, you can ignore the whole directory
 logs/
+
+# Ignore local pycache directories/files
+__pycache__/

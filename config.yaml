@@ -1,8 +1,8 @@
 paths_log_file_path: "./paths_log.csv"
 process_log_file_path: "./process_log.csv"
 grid_size: 3
-path_min_length: 3
-path_max_length: 9
+path_min_length: 1
+path_max_length: 2
 path_max_node_distance: 1
 path_prefix: []
 path_suffix: []

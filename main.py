@@ -64,10 +64,10 @@ if __name__ == "__main__":
                 f"Warning: Mode '{mode}' is not recognized and will be ignored.")
 
     # print(f" Starting main.py with config: {config}")
-    print(f" Calculating possible paths...")
+    print(f"Calculating possible paths...")
     possible_paths = path_finder.total_paths
     handler_names_str = ', '.join([handler_info['class'].__name__ for arg, handler_info in handler_classes.items() if arg in args.mode])
     print(
-        f" Completed possible path calculation. Attempting brute force with {possible_paths} possible paths via {handler_names_str}.")
+        f"Completed. Attempting brute force with {possible_paths} possible paths via {handler_names_str}.")
     result = path_finder.dfs()    
-    print(f" Reached end of paths to try. Exiting.")
+    print(f"Reached end of paths to try. Exiting.")

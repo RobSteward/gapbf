@@ -112,23 +112,24 @@ class ADBHandler(PathHandler):
 
         # Regular output, continue
         if status == 0 and stderr == "" and stdout == self.stdout_normal:
-            print(f"Path {path} was not successful.")
             i = 0.1
             time_remaining = self.attempt_delay/1000
             while i <= time_remaining:
                 time.sleep(i)
                 time_remaining = time_remaining - i
-                sys.stdout.write(f'\rContinuing in: {time_remaining:.1f} seconds  ')
+                sys.stdout.write(
+                    f'\rPath {path} was not successful. Continuing in {time_remaining:.1f} seconds...')
                 sys.stdout.flush()  # necessary for the line to be printed immediately
+            sys.stdout.write('\n')
             return (False, None)
 
         # Report and exit
-        print("Should not get here")
-        self.logger.error("An error occurred, here's the output for the decryption attempt:")
+        self.logger.error(
+            "An error occurred, here's the output for the decryption attempt:")
         self.logger.error(f"- status: {status}")
         self.logger.error(f"- stdout: {stdout}")
         self.logger.error(f"- stderr: {stderr}")
-        return False
+        sys.exit(1)
 
 class TestHandler(PathHandler):
     """

@@ -32,6 +32,7 @@ In the [`config.yaml`](./config.yaml) file you can tweak a few constants for:
 - Grid size
 - Minimum pattern length
 - Maximum pattern length
+- Maximum path node distance
 - Path prefix
 - Path suffix
 - Nodes to exclude

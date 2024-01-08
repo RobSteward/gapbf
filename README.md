@@ -118,7 +118,7 @@ My *assumption* is that the 6x6 grid looks like this:
 - Start brute forcing
   ```bash
   # Run tool
-  python main.py
+  python3 main.py [-m {{modes}}]
   ```
 
 - Wait for a successful attempt. **This may take a long while**
@@ -151,9 +151,9 @@ In the config.yaml file you can tweak a few constants for:
 * ~~Move DFS variable reading/parameters to class level~~
 * ~~Implement testing framework (pytest)~~
 * ~~Write tests (~~unit test~~, integration test)~~
-* Order handlers (ADB, iOS, Render, Test, Log)
+* ~~Order handlers (ADB, iOS, Print, Test, Log)~~
 * Fix logging to file from ADB handler)
-* Fix PrintHandler not showing correct path
+* ~~Fix PrintHandler not showing correct path~~
 * Fix dfs not respecting config min/max path length and excluding nodes, and path prefix/suffix
 * Improve error handling
 * ~~Add documentation~~

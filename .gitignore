@@ -10,3 +10,9 @@ logs/
 
 # Ignore local pycache directories/files
 __pycache__/
+
+# Ignore compiled python files
+*.pyc
+
+# Ignore the config file
+config.yaml

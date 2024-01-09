@@ -1,6 +1,6 @@
 import yaml
 from dataclasses import dataclass, field, asdict
-from typing import List, Union, Set
+from typing import List, Union, Set, Tuple
 
 @dataclass
 class Config:
@@ -9,11 +9,11 @@ class Config:
     path_min_length: int = 0
     path_max_length: int = 0
     path_max_node_distance: int = 1
-    path_prefix: List[Union[int, str]] = field(default_factory=list)
-    path_suffix: List[Union[int, str]] = field(default_factory=list)
+    path_prefix: Tuple[Union[int, str]] = ()
+    path_suffix: Tuple[Union[int, str]] = ()
     excluded_nodes: List[Union[int, str]] = field(default_factory=list)
     attempt_delay: float = 0.0
-    test_path: List[Union[int, str]] = field(default_factory=list)
+    test_path: Tuple[Union[int, str]] = ()
     stdout_normal: str = ''
     stdout_success: str = ''
     stdout_error: str = ''

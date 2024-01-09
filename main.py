@@ -6,6 +6,7 @@ from PathFinder import PathFinder
 from PathHandler import ADBHandler, PrintHandler, TestHandler, LogHandler #, iOSHandler
 
 config = Config.load_config('config.yaml')
+print(type(config.path_prefix))
 path_finder = PathFinder(config.grid_size, config.path_min_length, config.path_max_length,
                          config.path_max_node_distance, config.path_prefix, config.path_suffix, config.excluded_nodes)
 

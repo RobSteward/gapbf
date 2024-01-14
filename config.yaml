@@ -1,15 +1,16 @@
 paths_log_file_path: "./paths_log.csv"
 process_log_file_path: "./process_log.csv"
 grid_size: 3
-path_min_length: 1
-path_max_length: 9
+path_min_length: 4
+path_max_length: 4
 path_max_node_distance: 1
 path_prefix: []
-path_suffix: []
-excluded_nodes: []
-test_path: []
+path_suffix: [8]
+excluded_nodes: [2,9,5]
+test_path: [1,4,7,8]
 attempt_delay: 10100
 outputstrings:
-  stdout_normal: "Attempting to decrypt data partition or user data via command line.\nFailed to decrypt data.\n"
-  stdout_error: some_error_string
+  stdout_normal: "Failed to decrypt"
+  stdout_error: "some_error_string"
+  stdout_success: "Data successfully decrypted"
 adb_timeout: 30

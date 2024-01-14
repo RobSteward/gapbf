@@ -6,7 +6,6 @@ from PathFinder import PathFinder
 from PathHandler import ADBHandler, PrintHandler, TestHandler, LogHandler #, iOSHandler
 
 config = Config.load_config('config.yaml')
-print(type(config.path_prefix))
 path_finder = PathFinder(config.grid_size, config.path_min_length, config.path_max_length,
                          config.path_max_node_distance, config.path_prefix, config.path_suffix, config.excluded_nodes)
 
@@ -48,7 +47,7 @@ if __name__ == "__main__":
         valid_modes = ', '.join(handler_classes.keys())
         # print(
         #    f"Error: Missing required '-m/--mode' argument. Allowed values are combinations of: {valid_modes}.")
-        parser.print_help()  # Print the default help message
+        # parser.print_help()  # Print the default help message
         sys.exit(1)
 
     logger = get_logger('main', log_level=args.logging)
@@ -70,5 +69,8 @@ if __name__ == "__main__":
     handler_names_str = ', '.join([handler_info['class'].__name__ for arg, handler_info in handler_classes.items() if arg in args.mode])
     print(
         f"Completed. Attempting brute force with {possible_paths} possible paths via {handler_names_str}.")
-    result = path_finder.dfs()    
-    print(f"Reached end of paths to try. Exiting.")
+    result = path_finder.dfs()
+    if not result:
+        print(f"Reached end of paths to try. Check path_logs.csv for more information. Exiting.")
+    else:
+        print(f"Success! The path is: {result}")

@@ -14,7 +14,7 @@ class Config:
     excluded_nodes: List[Union[int, str]] = field(default_factory=list)
     attempt_delay: float = 0.0
     test_path: Tuple[Union[int, str]] = ()
-    stdout_normal: str = ''
+    stdout_normal: str = Tuple[str]
     stdout_success: str = ''
     stdout_error: str = ''
     paths_log_file_path: str = ''
@@ -54,7 +54,7 @@ class Config:
                 "All items in test_path must be either integer or string")
         if not isinstance(self.stdout_normal, str):
             raise TypeError(
-                f"stdout_normal must be a string, got {type(self.stdout_normal).__name__}")
+                f"Stdout_normal must be a string, got {type(self.stdout_normal).__name__}")
         if not isinstance(self.stdout_success, str):
             raise TypeError(
                 f"stdout_success must be a string, got {type(self.stdout_success).__name__}")

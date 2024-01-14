@@ -40,6 +40,7 @@ class ADBHandler(PathHandler):
         self.paths_log_file_path = self.config.paths_log_file_path
         self.attempted_paths = self.get_attempted_paths()
         self.timeout = self.config.adb_timeout
+        subprocess.run(["adb", "start-server"], check=True)
     
     def get_attempted_paths(self):
         """
@@ -106,12 +107,11 @@ class ADBHandler(PathHandler):
         log_handler.handle_path(timestamp, path, result, stdout_replaced)
 
         # Check for success
-        if status == 0 and stderr == "" and stdout in self.stdout_success:
-            self.logger.info(f"\nSuccess! Here is the output for the decryption attempt: {path}")
+        if status == 0 and stderr == "" and self.stdout_success in stdout:
             return (True, path)
 
-        # Regular output, continue
-        if status == 0 and stderr == "" and stdout == self.stdout_normal:
+        # Regular output with failure to decrypt, continue
+        if status == 0 and stderr == "" and self.stdout_normal in stdout:
             i = 0.1
             time_remaining = self.attempt_delay/1000
             while i <= time_remaining:

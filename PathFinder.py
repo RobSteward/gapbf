@@ -1,5 +1,4 @@
-from typing import List, Union, Set
-import logging
+from typing import List, Union, Set, Tuple
 from PathHandler import PathHandler   
 
     # See https://twrp.me/faq/openrecoveryscript.html
@@ -7,7 +6,7 @@ from PathHandler import PathHandler
     # Sets configuration values with which to initiate PathFinder (graph and neighbors based on grid size)
     # Should have 1 property, 1 method to handle_path and 1 method to register handlers
 class PathFinder:
-    graphs: dict =  {
+    _graphs: dict = {
             3: {
                 "graph": [1,2,3,4,5,6,7,8,9], 
                 "neighbors": {
@@ -116,26 +115,23 @@ class PathFinder:
             },
         }
 
-    def __init__(self, grid_size: int, path_min_len: int = 4, path_max_len: int = 36, path_max_node_distance: int = 1, path_prefix: List[Union[int, str]] = [], path_suffix: Set[Union[int, str]] = [], excluded_nodes: Set[Union[int, str]] = []):
-        self.logger = logging.getLogger('main')
-        if grid_size not in self.graphs:
-            raise ValueError(f'Invalid grid_size: {grid_size}. Available sizes are: {list(self.graphs.keys())}')
-        self.grid_size = grid_size
-        graph_data = self.graphs.get(self.grid_size, {})
-        self.graph = graph_data.get("graph", [])
-        self.neighbors = graph_data.get("neighbors", {})
-        self.__handlers = []
+    def __init__(self, grid_size: int, path_min_len: int = 4, path_max_len: int = 36, path_max_node_distance: int = 1, path_prefix: Tuple[Union[int, str]] = [], path_suffix: Tuple[Union[int, str]] = [], excluded_nodes: Set[Union[int, str]] = []):
+        if grid_size not in self._graphs:
+            raise ValueError(
+                f'Invalid grid_size: {grid_size}. Available sizes are: {list(self._graphs.keys())}')
+        self._grid_size = grid_size
+        graph_data = self._graphs.get(self._grid_size, {})
+        self._graph = graph_data.get("graph", [])
+        self._neighbors = graph_data.get("neighbors", {})
+        self.__handlers = []  # TODO: Should this be double underscore?
         self._total_paths = None
         self._path_min_len = path_min_len
         self._path_max_len = path_max_len
         self._path_max_node_distance = path_max_node_distance
-        self._path_prefix = set(path_prefix)
-        self.logger.debug(f"_path_prefix value: {self._path_prefix}")
-        self._path_suffix = path_suffix
-        self.logger.debug(f"_path_suffix value: {self._path_suffix}")
-        self._excluded_nodes = excluded_nodes
-        self.logger.debug(f"Type of self.graphs: {type(self.graphs)}, Value: {self.graphs}")
-    
+        self._path_prefix = tuple(path_prefix)
+        self._path_suffix = tuple(path_suffix)
+        self._excluded_nodes = set(excluded_nodes)
+
     @property
     def handlers(self):
         return self.__handlers
@@ -146,28 +142,25 @@ class PathFinder:
             self._total_paths = self._calculate_total_paths()
         return self._total_paths
     
-    def add_handler(self, handler: PathHandler) -> None:
+    def add_handler(self, handler: PathHandler) -> bool:
         if not isinstance(handler, PathHandler):
             raise TypeError("Expected a PathHandler instance.")
         self.__handlers.append(handler)
         
     def process_path(self, path):
         for handler in self.handlers:
-            success, output = handler.handle_path(path)
-            if success:
-                return path, output
-        return None, None
+            success, _path = handler.handle_path(path)
+            if not success:
+                return False, None
+            return True, _path
     
     def _calculate_total_paths(self) -> int:
-        """
-        Count the number of possible paths based on the given configuration.
-        """
         visited = set(self._path_prefix)
-        # set path_suffix to self._path_suffix, if not empty, else set to empty set
         if self._path_suffix:
             path_suffix = set(map(int, self._path_suffix))
         else:
             path_suffix = set()
+
         total_paths = 0
 
         def dfs_counter(node: Union[int, str], path: List[Union[int, str]]) -> None:
@@ -181,7 +174,7 @@ class PathFinder:
                     total_paths += 1
 
             if len(path) < self._path_max_len:
-                for neighbor in self.neighbors[str(node)]:
+                for neighbor in self._neighbors[str(node)]:
                     if neighbor not in self._excluded_nodes and neighbor not in visited:
                         dfs_counter(neighbor, path)
 
@@ -189,7 +182,7 @@ class PathFinder:
             visited.remove(node)
 
         if not self._path_prefix:
-            for node in self.graph:
+            for node in self._graph:
                 if node not in visited:
                     dfs_counter(node, self._path_prefix)
         else:
@@ -197,55 +190,70 @@ class PathFinder:
 
         return total_paths
 
-    # Depth-first search recursive traversal of the graph,
-    def dfs(self) -> None:
-        """
-        Depth-first search recursive traversal of the graph.
-        """
-        total_paths_to_test = self.total_paths  # This will call _calculate_total_paths if it hasn't been called before
-        # print(f"Total number of paths to be tested: {total_paths_to_test}")
+    def dfs(self) -> Tuple[bool, List]:
         visited = set(self._path_prefix)
         if self._path_suffix:
             path_suffix = set(map(int, self._path_suffix)) 
         else:
             path_suffix = set()
 
-        def calculate_node_distance(node1, node2):
-            distance = 0
+        def calculate_node_distance(graph, node1, node2):
+            distances = {}
+            for node in graph:
+                distances[node] = float('inf')
+            distances[node1] = 0
+            queue = [node1]
+
+            while queue:
+                current_node = queue.pop(0)
+
+                if current_node == node2:
+                    return distances[current_node]
+
+                for neighbor in graph[current_node]:
+                    distance = len(graph) - graph[current_node].index(neighbor)
+
+                    if distance not in distances:
+                        distances[distance] = float('inf')
+
+                    if distances[distance] > distances[current_node] + 1:
+                        distances[distance] = distances[current_node] + 1
+
+                    queue.append(neighbor)
 
             return distance
 
-        def dfs_helper(node: Union[int, str], path: List[Union[int, str]]) -> None:
+        def dfs_helper(node: Union[int, str], path: List[Union[int, str]]) -> Tuple[bool, List]:
             path = list(path)
             path.append(node)
             visited.add(node)
 
-
-
             if len(path) >= self._path_min_len:
                 if path[-1] in path_suffix or not path_suffix:
-                    # print(f"Currently handling path: {path}")
-                    self.logger.info(f"Debug: Found valid path: {path} with length {len(path)}")
-                    for handler in self.handlers:
-                        success, _ = handler.handle_path(path)
-                        if success:
-                            return True
+                    success, _path = self.process_path(path)
+                    if success:
+                        return success, _path
 
             if len(path) < self._path_max_len:
-                for neighbor in self.neighbors[str(node)]:
+                for neighbor in self._neighbors[str(node)]:
                     if neighbor not in self._excluded_nodes and neighbor not in visited:
-                        distance = calculate_node_distance(node, neighbor)
-                        # Proceed with DFS only if the distance is within the allowed maximum
-                        if distance <= self._path_max_node_distance:
-                            if dfs_helper(neighbor, path):
-                                return True
+                        # distance = calculate_node_distance(node, neighbor)
+                        # if distance <= self._path_max_node_distance:
+                        result = dfs_helper(neighbor, path)
+                        if result[0]:
+                            return result
 
             path.pop()
             visited.remove(node)
 
         if not self._path_prefix:
-            for node in self.graph:
-                if dfs_helper(node, []):
-                    break
+            for node in self._graph:
+                result = dfs_helper(node, [])
+                if result:
+                    return result
         else:
-            dfs_helper(self._path_prefix[-1], self._path_prefix[:-1])
+            result = dfs_helper(self._path_prefix[-1], self._path_prefix[:-1])
+            if result:
+                return result
+
+        return False, []

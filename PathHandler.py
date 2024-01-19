@@ -5,7 +5,7 @@ import time
 import os
 import csv
 import logging
-from typing import Optional
+from typing import Optional, List, Union, Set, Tuple
 from datetime import datetime
 from Config import Config
 from Logging import get_logger
@@ -95,7 +95,7 @@ class ADBHandler(PathHandler):
             sys.exit(1)
         
         #Parse output
-        # print(f"Output: {result}")
+        print(f"Output: {result}")
         status = result.returncode
         stdout = result.stdout
         stderr = result.stderr
@@ -107,7 +107,10 @@ class ADBHandler(PathHandler):
         log_handler.handle_path(timestamp, path, result, stdout_replaced)
 
         # Check for success
-        if status == 0 and stderr == "" and self.stdout_success in stdout:
+        print(f"self.stdout_success is {self.stdout_success}")
+        print(f"String comparison is {self.stdout_success in stdout}")
+        if status == 0 and stderr == '' and self.stdout_success in stdout:
+            print(f"Success full decryption attempt {path}")
             return (True, path)
 
         # Regular output with failure to decrypt, continue
@@ -129,7 +132,8 @@ class ADBHandler(PathHandler):
         self.logger.error(f"- status: {status}")
         self.logger.error(f"- stdout: {stdout}")
         self.logger.error(f"- stderr: {stderr}")
-        sys.exit(1)
+        return (False, None)
+        # sys.exit(1)
 
 class TestHandler(PathHandler):
     """
@@ -151,9 +155,7 @@ class TestHandler(PathHandler):
         print(
             f"[TEST] [CONFIGURATION] Test path length is {len(self.test_path)}")
 
-    def handle_path(self, path) -> bool:
-        self.logger.debug(f"Received path {path}")
-            
+    def handle_path(self, path) -> Tuple[bool, List]:
         if path == self.test_path:
             print(f"\n[TEST] Success! Here is the output for the decryption attempt: {path}")
             return True, path

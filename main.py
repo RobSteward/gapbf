@@ -1,9 +1,8 @@
 import argparse
 import sys
-from Logging import Logger, get_logger  # Import the Logger class and get_logger function
 from Config import Config
 from PathFinder import PathFinder
-from PathHandler import ADBHandler, PrintHandler, TestHandler, LogHandler #, iOSHandler
+from PathHandler import ADBHandler, PrintHandler, TestHandler  # , LogHandler
 
 config = Config.load_config('config.yaml')
 path_finder = PathFinder(config.grid_size, config.path_min_length, config.path_max_length,
@@ -24,10 +23,9 @@ if __name__ == "__main__":
         description='Please configure applicable handlers. Example: python3 main.py -m ap -l w')
     
     handler_classes = {
-    'a': {'class': ADBHandler, 'help': 'Attempt decryption via ADB shell on Android device'},
-    #'i': {'class': iOSHandler, 'help': 'Add iOS handler - runs path via iOS device'},
-    'p': {'class': PrintHandler, 'help': 'Print attempted paths to console while running brute force'},
-    't': {'class': TestHandler, 'help': 'Run mock brute force against test_path in config'},
+        'a': {'class': ADBHandler, 'help': 'Attempt decryption via ADB shell on Android device'},
+        'p': {'class': PrintHandler, 'help': 'Print attempted path to console'},
+        't': {'class': TestHandler, 'help': 'Run mock brute force against test_path in config'},
     }
 
     mode_help = "Select modes: "
@@ -43,14 +41,9 @@ if __name__ == "__main__":
     try:
         args = parser.parse_args()
     except SystemExit:
-        # Extract the valid modes as a string
         valid_modes = ', '.join(handler_classes.keys())
-        # print(
-        #    f"Error: Missing required '-m/--mode' argument. Allowed values are combinations of: {valid_modes}.")
-        # parser.print_help()  # Print the default help message
         sys.exit(1)
 
-    logger = get_logger('main', log_level=args.logging)
     modes = args.mode
 
     for mode in modes:
@@ -63,14 +56,14 @@ if __name__ == "__main__":
             print(
                 f"Warning: Mode '{mode}' is not recognized and will be ignored.")
 
-    # print(f" Starting main.py with config: {config}")
+    print(f"Starting main.py with config: {config}")
     print(f"Calculating possible paths...")
     possible_paths = path_finder.total_paths
     handler_names_str = ', '.join([handler_info['class'].__name__ for arg, handler_info in handler_classes.items() if arg in args.mode])
     print(
         f"Completed. Attempting brute force with {possible_paths} possible paths via {handler_names_str}.")
-    result = path_finder.dfs()
-    if not result:
+    success, successful_path = path_finder.dfs()
+    if not success:
         print(f"Reached end of paths to try. Check path_logs.csv for more information. Exiting.")
     else:
-        print(f"Success! The path is: {result}")
+        print(f"Success! The path is: {successful_path}")

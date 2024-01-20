@@ -229,17 +229,24 @@ class PathFinder:
             visited.add(node)
 
             if len(path) >= self._path_min_len:
+                print(f"In min_path_length check")
                 if path[-1] in path_suffix or not path_suffix:
                     success, _path = self.process_path(path)
+                    print(
+                        f"process_path in min_check returned success {success} and path {_path}")
                     if success:
-                        return success, _path
+                        return (success, _path
 
             if len(path) < self._path_max_len:
+                print(f"In max_path_length check")
+                print(
+                    f"node {node} has neighbors {self._neighbors[str(node)]}")
                 for neighbor in self._neighbors[str(node)]:
                     if neighbor not in self._excluded_nodes and neighbor not in visited:
                         # distance = calculate_node_distance(node, neighbor)
                         # if distance <= self._path_max_node_distance:
                         result = dfs_helper(neighbor, path)
+                        print(f"dfs_helper returned result {result}")
                         if result[0]:
                             return result
 
@@ -254,6 +261,7 @@ class PathFinder:
         else:
             result = dfs_helper(self._path_prefix[-1], self._path_prefix[:-1])
             if result:
+                print(f"result {result}")
                 return result
 
         return False, []

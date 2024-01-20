@@ -61,7 +61,7 @@ class ADBHandler(PathHandler):
                     next(reader) 
                 try:
                     for row in reader:
-                        if len(row) >= 2:  # Ensure at least two columns are present
+                        if len(row) >= 2:
                             attempted_paths.append(row[1])
                         else:
                             self.logger.warning('Malformed row in CSV file. Skipping.')
@@ -86,15 +86,12 @@ class ADBHandler(PathHandler):
         try:
             result = subprocess.run(command, capture_output=True, text=True, timeout=self.timeout)
         except subprocess.TimeoutExpired as e:
-            # self.logger.error(f"Subprocess timed out: {e}")
             print(f"Subprocess timed out: {e}")
             sys.exit(1)
         except Exception as e:
-            # self.logger.error(f"Failed to invoke decrypt command: {e}")
             print(f"Failed to invoke decrypt command: {e}")
             sys.exit(1)
-        
-        #Parse output
+
         print(f"Output: {result}")
         status = result.returncode
         stdout = result.stdout
@@ -102,18 +99,13 @@ class ADBHandler(PathHandler):
         stdout_replaced = stdout.replace('\n', '\\n')
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        # Pass the response to the LogHandler
         log_handler = LogHandler()
         log_handler.handle_path(timestamp, path, result, stdout_replaced)
 
-        # Check for success
-        print(f"self.stdout_success is {self.stdout_success}")
-        print(f"String comparison is {self.stdout_success in stdout}")
         if status == 0 and stderr == '' and self.stdout_success in stdout:
             print(f"Success full decryption attempt {path}")
             return (True, path)
 
-        # Regular output with failure to decrypt, continue
         if status == 0 and stderr == "" and self.stdout_normal in stdout:
             i = 0.1
             time_remaining = self.attempt_delay/1000
@@ -122,16 +114,15 @@ class ADBHandler(PathHandler):
                 time_remaining = time_remaining - i
                 sys.stdout.write(
                     f'\rPath {path} was not successful. Continuing in {time_remaining:.1f} seconds...')
-                sys.stdout.flush()  # necessary for the line to be printed immediately
+                sys.stdout.flush()
             sys.stdout.write('\n')
             return (False, None)
 
-        # Report and exit
-        self.logger.error(
-            "An error occurred, here's the output for the decryption attempt:")
-        self.logger.error(f"- status: {status}")
-        self.logger.error(f"- stdout: {stdout}")
-        self.logger.error(f"- stderr: {stderr}")
+        # self.logger.error(
+        #     "An error occurred, here's the output for the decryption attempt:")
+        # self.logger.error(f"- status: {status}")
+        # self.logger.error(f"- stdout: {stdout}")
+        # self.logger.error(f"- stderr: {stderr}")
         return (False, None)
         # sys.exit(1)
 
@@ -174,7 +165,6 @@ class PrintHandler(PathHandler):
     def handle_path(self, path) -> bool:
         path_rows = self.render_path(path)
         steps_rows = self.render_path_steps(path)
-        # Print side-by-side
         print(f"[PRINT] Current path {path}")
         for path_row, steps_row in zip(path_rows, steps_rows):
             print(f"{path_row}    {steps_row}")
@@ -184,10 +174,8 @@ class PrintHandler(PathHandler):
     def render_path(self, path):
         rows = []
         grid_size = self.grid_size
-        # Create a path slug and print it
         slug = "-".join(str(p) for p in path)
 
-        # Render the pattern grid
         for y in range(grid_size):
             row = []
             for x in range(grid_size):
@@ -201,7 +189,6 @@ class PrintHandler(PathHandler):
     def render_path_steps(self, path):
         rows = []
         grid_size = self.grid_size
-        # Render the path steps
         for y in range(grid_size):
             row = []
             for x in range(grid_size):

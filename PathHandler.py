@@ -22,12 +22,12 @@ class PathHandler(ABC):
     
     def __init__(self):
         self.config = Config.load_config('config.yaml')
-        self.logger = logging.getLogger('main') 
-
+        self.logger = logging.getLogger('main')
 class ADBHandler(PathHandler):
     """
     Handles paths using ADB for decryption.
     """
+
     def __init__(self):
         """
         Initialize ADBHandler with configuration settings.
@@ -40,6 +40,7 @@ class ADBHandler(PathHandler):
         self.paths_log_file_path = self.config.paths_log_file_path
         self.attempted_paths = self.get_attempted_paths()
         self.timeout = self.config.adb_timeout
+        self.total_paths = self.config.total_paths
         subprocess.run(["adb", "start-server"], check=True)
     
     def get_attempted_paths(self):
@@ -72,7 +73,7 @@ class ADBHandler(PathHandler):
         return tuple(attempted_paths)
     
     # Credit to https://github.com/timvisee/apbf
-    def handle_path(self, path) -> (bool, Optional[str]):
+    def handle_path(self, path, total_paths) -> (bool, Optional[str]):
         """
         Attempts to decrypt using the given path.
         """
@@ -82,7 +83,6 @@ class ADBHandler(PathHandler):
         self.logger.info(f"Trying path: {path} with length {len(path)}")
         formatted_path = ''.join(map(str, path))
         command = ["adb", "shell", "twrp", "decrypt", formatted_path]
-        # print("Sending command: ", command)
         try:
             result = subprocess.run(command, capture_output=True, text=True, timeout=self.timeout)
         except subprocess.TimeoutExpired as e:
@@ -92,7 +92,6 @@ class ADBHandler(PathHandler):
             print(f"Failed to invoke decrypt command: {e}")
             sys.exit(1)
 
-        print(f"Output: {result}")
         status = result.returncode
         stdout = result.stdout
         stderr = result.stderr
@@ -103,7 +102,6 @@ class ADBHandler(PathHandler):
         log_handler.handle_path(timestamp, path, result, stdout_replaced)
 
         if status == 0 and stderr == '' and self.stdout_success in stdout:
-            print(f"Success full decryption attempt {path}")
             return (True, path)
 
         if status == 0 and stderr == "" and self.stdout_normal in stdout:
@@ -113,16 +111,15 @@ class ADBHandler(PathHandler):
                 time.sleep(i)
                 time_remaining = time_remaining - i
                 sys.stdout.write(
-                    f'\rPath {path} was not successful. Continuing in {time_remaining:.1f} seconds...')
+                    f'\rPath {path} of {total_paths} was not successful. Continuing in {time_remaining:.1f} seconds...')
                 sys.stdout.flush()
             sys.stdout.write('\n')
             return (False, None)
 
-        # self.logger.error(
-        #     "An error occurred, here's the output for the decryption attempt:")
-        # self.logger.error(f"- status: {status}")
-        # self.logger.error(f"- stdout: {stdout}")
-        # self.logger.error(f"- stderr: {stderr}")
+        if status != 0:
+            print(f"Failed to invoke decrypt command: {status} - {stderr}")
+            sys.exit(1)
+
         return (False, None)
         # sys.exit(1)
 
@@ -130,6 +127,7 @@ class TestHandler(PathHandler):
     """
     Test handler for paths mocking decrypting against a known path.
     """
+
     def __init__(self):
         super().__init__()
         self.test_path = self.config.test_path
@@ -158,6 +156,7 @@ class PrintHandler(PathHandler):
     """
     Prints paths and related information for human-reability.
     """
+
     def __init__(self):
         super().__init__()
         self.grid_size = self.config.grid_size
@@ -204,6 +203,7 @@ class LogHandler(PathHandler):
     """
     Logs paths and responses.
     """
+
     def __init__(self):
         super().__init__()
         self.paths_log_file_path = self.config.paths_log_file_path

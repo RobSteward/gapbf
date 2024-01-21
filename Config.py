@@ -20,6 +20,7 @@ class Config:
     paths_log_file_path: str = ''
     process_log_file_path: str = ''
     adb_timeout: int = 30
+    total_paths: int = 0
 
     def __post_init__(self):
         if not isinstance(self.config_file_path, str):
@@ -103,7 +104,8 @@ class Config:
                 config_data.get('paths_log_file_path', '')),
             process_log_file_path=str(
                 config_data.get('process_log_file_path', '')),
-            adb_timeout=int(config_data.get('adb_timeout', 30))
+            adb_timeout=int(config_data.get('adb_timeout', 30)),
+            total_paths=int(config_data.get('total_paths', 0))
         )
         return loaded_config
 

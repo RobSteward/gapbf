@@ -1,5 +1,6 @@
 from typing import List, Union, Set, Tuple
-from PathHandler import PathHandler   
+from PathHandler import PathHandler
+import yaml
 
     # See https://twrp.me/faq/openrecoveryscript.html
     # Define a dictionary with the substitutions
@@ -149,7 +150,8 @@ class PathFinder:
         
     def process_path(self, path):
         for handler in self.handlers:
-            success, _path = handler.handle_path(path)
+            success, _path = handler.handle_path(
+                path, self.total_paths)
             if not success:
                 return False, None
             return True, _path
@@ -188,7 +190,16 @@ class PathFinder:
         else:
             dfs_counter(self._path_prefix[-1], self._path_prefix[:-1])
 
-        return total_paths
+        if total_paths == 0:
+            raise ValueError(
+                f"No paths found with the given configuration. Please check your configuration and try again.")
+        else:
+            with open('config.yaml', 'r') as file:
+                config = yaml.safe_load(file)
+                config['total_paths'] = total_paths
+            with open('config.yaml', 'w') as file:
+                yaml.safe_dump(config, file)
+            return total_paths
 
     def dfs(self) -> Tuple[bool, List]:
         visited = set(self._path_prefix)
@@ -229,39 +240,37 @@ class PathFinder:
             visited.add(node)
 
             if len(path) >= self._path_min_len:
-                print(f"In min_path_length check")
                 if path[-1] in path_suffix or not path_suffix:
-                    success, _path = self.process_path(path)
-                    print(
-                        f"process_path in min_check returned success {success} and path {_path}")
+                    success, _path = self.process_path(
+                        path)
                     if success:
-                        return (success, _path
+                        return (success, _path)
 
             if len(path) < self._path_max_len:
-                print(f"In max_path_length check")
-                print(
-                    f"node {node} has neighbors {self._neighbors[str(node)]}")
                 for neighbor in self._neighbors[str(node)]:
                     if neighbor not in self._excluded_nodes and neighbor not in visited:
                         # distance = calculate_node_distance(node, neighbor)
                         # if distance <= self._path_max_node_distance:
-                        result = dfs_helper(neighbor, path)
-                        print(f"dfs_helper returned result {result}")
-                        if result[0]:
-                            return result
+                        success, _path = dfs_helper(neighbor, path)
+                        if success:
+                            return (success, _path)
 
             path.pop()
             visited.remove(node)
 
+            return (False, None)
+
         if not self._path_prefix:
             for node in self._graph:
-                result = dfs_helper(node, [])
-                if result:
-                    return result
+                success, _path = dfs_helper(node, [])
+                if success:
+                    print(
+                        f"dfs_helper if block on self._path_prefix returning success {success} and path {_path}")
+                    return (success, _path)
         else:
-            result = dfs_helper(self._path_prefix[-1], self._path_prefix[:-1])
-            if result:
-                print(f"result {result}")
-                return result
+            success, _path = dfs_helper(
+                self._path_prefix[-1], self._path_prefix[:-1])
+            if success:
+                return (success, _path)
 
         return False, []
